@@ -1,4 +1,4 @@
-﻿Create DATABASE [Wholesale Database Management System];
+Create DATABASE [Wholesale Database Management System];
 go
 USE [Wholesale Database Management System]
 go
