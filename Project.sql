@@ -3,41 +3,38 @@ go
 USE [Wholesale Database Management System]
 go
 CREATE TABLE [Invoice] (
-  [InvoiceID] <type>,
-  [InvoiceDate] <type>,
-  [TotalAmount] <type>,
-  [SalesTax] <type>,
-  [Discount] <type>,
-  [CouponCode] <type>,
-  PRIMARY KEY ([InvoiceID])
-);
+  [InvoiceID] VARCHAR(70) PRIMARY KEY,
+  [InvoiceDate] DATE,
+  [TotalAmount] Decimal(20,15),
+  [SalesTax] Decimal(20,15),
+  [Discount] Decimal(20,15),
+  [CouponCode] Decimal(20,15)
+  );
 
 CREATE INDEX [FK] ON  [Invoice] ([CouponCode]);
 
 CREATE TABLE [Refund] (
-  [RefundOrderID] <type>,
-  [RefundStatus] <type>,
-  [RefundAmount] <type>,
-  PRIMARY KEY ([RefundOrderID])
-);
+  [RefundOrderID] VARCHAR(50) PRIMARY KEY,
+  [RefundStatus] VARCHAR(50),
+  [RefundAmount] Decimal(20,15)
+  );
 
 CREATE TABLE [Employee] (
-  [EmployeeID] <type>,
-  [FirstName] <type>,
-  [LastName] <type>,
-  [Address ID] <type>,
-  [TelephoneNumber] <type>,
-  [Email] <type>,
-  PRIMARY KEY ([EmployeeID])
-);
+  [EmployeeID] VARCHAR(50) PRIMARY KEY,
+  [FirstName] VARCHAR(20),
+  [LastName] VARCHAR(20),
+  [Address ID] VARCHAR(100) ,
+  [TelephoneNumber] VARCHAR(12),
+  [Email] VARCHAR(50),
+  );
 
 CREATE INDEX [FK] ON  [Employee] ([Address ID]);
 
 CREATE TABLE [CustomerReturnsOrder] (
-  [CustomerID] <type>,
-  [OrderID] <type>,
-  [InvoiceID] <type>,
-  [ReturnRequestID] <type>
+  [CustomerID] VARCHAR(30),
+  [OrderID] VARCHAR(50),
+  [InvoiceID] VARCHAR(100),
+  [ReturnRequestID] VARCHAR(100)
 );
 
 CREATE INDEX [PK, FK1] ON  [CustomerReturnsOrder] ([CustomerID]);
@@ -49,66 +46,63 @@ CREATE INDEX [PK, FK3] ON  [CustomerReturnsOrder] ([InvoiceID]);
 CREATE INDEX [PK, FK4] ON  [CustomerReturnsOrder] ([ReturnRequestID]);
 
 CREATE TABLE [Returns] (
-  [ReturnRequestID] <type>,
-  [ReturnRequestDate] <type>,
-  [ReturnRequestTime] <type>,
-  [RefundOrderID] <type>,
-  PRIMARY KEY ([ReturnRequestID])
-);
+  [ReturnRequestID] VARCHAR (100) PRIMARY KEY,
+  [ReturnRequestDate] DATE,
+  [ReturnRequestTime] TIME,
+  [RefundOrderID] VARCHAR(50),
+ );
 
 CREATE INDEX [FK] ON  [Returns] ([RefundOrderID]);
 
 CREATE TABLE [Price] (
-  [ItemNo] <type>,
-  [RetailPrice] <type>,
-  [WholesalePrice] <type>,
-  [Discount] <type>
+  [ItemNo] VARCHAR(50),
+  [RetailPrice] DECIMAL(20,5),
+  [WholesalePrice] DECIMAL(20,5),
+  [Discount] DECIMAL(20,5)
 );
 
 CREATE INDEX [FK] ON  [Price] ([ItemNo]);
 
 CREATE TABLE [Transportation Vendor] (
-  [VendorID] <type>,
-  [VendorName] <type>,
-  [Address ID] <type>,
-  [EmailID] <type>,
-  PRIMARY KEY ([VendorID])
+  [VendorID] VARCHAR(50) PRIMARY KEY,
+  [VendorName] VARCHAR(30),
+  [Address ID] VARCHAR(100),
+  [EmailID] VARCHAR(50)
+  
 );
 
 CREATE INDEX [FK] ON  [Transportation Vendor] ([Address ID]);
 
 CREATE TABLE [Transaction] (
-  [TransactionID] <type>,
-  [TransactionMode] <type>,
-  [TransactionDate] <type>,
-  [TransactionTime] <type>,
-  [TransactionAmount] <type>,
-  [TransactionStatus] <type>,
-  PRIMARY KEY ([TransactionID])
+  [TransactionID] VARCHAR(100) PRIMARY KEY,
+  [TransactionMode] VARCHAR(20),
+  [TransactionDate] DATE,
+  [TransactionTime] TIME,
+  [TransactionAmount] DECIMAL(20,5),
+  [TransactionStatus] VARCHAR(20),
 );
 
 CREATE TABLE [Address] (
-  [Address ID] <type>,
-  [StreetName] <type>,
-  [City] <type>,
-  [State] <type>,
-  [Country] <type>,
-  [ZipCode] <type>,
-  PRIMARY KEY ([Address ID])
-);
+  [Address ID] VARCHAR(30) PRIMARY KEY,
+  [StreetName] VARCHAR(100),
+  [City] VARCHAR(30),
+  [State] VARCHAR(30),
+  [Country] VARCHAR(30),
+  [ZipCode] INT,
+  );
 
 CREATE TABLE [Category] (
-  [ CategoryID] <type>,
-  [CategoryName] <type>,
-  PRIMARY KEY ([ CategoryID])
-);
+  [ CategoryID] VARCHAR(50) PRIMARY KEY,
+  [CategoryName] VARCHAR(50),
+  );
 
 CREATE TABLE [Coupon] (
-  [CouponCode] <type>,
-  [DiscountPercentage] <type>,
-  [DateValidTill] <type>,
-  PRIMARY KEY ([CouponCode])
-);
+  [CouponCode] VARCHAR(50) PRIMARY KEY,
+  [DiscountPercentage] DECIMAL(20,5),
+  [DateValidTill] DATE,
+ );
+
+
 
 CREATE TABLE [OrderItem] (
   [OrderID] <type>,
