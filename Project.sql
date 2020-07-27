@@ -3,7 +3,7 @@ go
 USE [Wholesale Database Management System]
 go
 CREATE TABLE [Invoice] (
-  [InvoiceID] VARCHAR(70) PRIMARY KEY,
+  [InvoiceID] INT PRIMARY KEY,
   [InvoiceDate] DATE,
   [TotalAmount] Decimal(20,15),
   [SalesTax] Decimal(20,15),
@@ -14,16 +14,16 @@ CREATE TABLE [Invoice] (
 CREATE INDEX [FK] ON  [Invoice] ([CouponCode]);
 
 CREATE TABLE [Refund] (
-  [RefundOrderID] VARCHAR(50) PRIMARY KEY,
+  [RefundOrderID] INT PRIMARY KEY,
   [RefundStatus] VARCHAR(50),
   [RefundAmount] Decimal(20,15)
   );
 
 CREATE TABLE [Employee] (
-  [EmployeeID] VARCHAR(50) PRIMARY KEY,
+  [EmployeeID] INT PRIMARY KEY,
   [FirstName] VARCHAR(20),
   [LastName] VARCHAR(20),
-  [Address ID] VARCHAR(100) ,
+  [Address ID] INT ,
   [TelephoneNumber] VARCHAR(12),
   [Email] VARCHAR(50),
   );
@@ -31,10 +31,10 @@ CREATE TABLE [Employee] (
 CREATE INDEX [FK] ON  [Employee] ([Address ID]);
 
 CREATE TABLE [CustomerReturnsOrder] (
-  [CustomerID] VARCHAR(30),
-  [OrderID] VARCHAR(50),
-  [InvoiceID] VARCHAR(100),
-  [ReturnRequestID] VARCHAR(100)
+  [CustomerID] INT,
+  [OrderID] INT,
+  [InvoiceID] INT,
+  [ReturnRequestID] INT
 );
 
 CREATE INDEX [PK, FK1] ON  [CustomerReturnsOrder] ([CustomerID]);
@@ -46,10 +46,10 @@ CREATE INDEX [PK, FK3] ON  [CustomerReturnsOrder] ([InvoiceID]);
 CREATE INDEX [PK, FK4] ON  [CustomerReturnsOrder] ([ReturnRequestID]);
 
 CREATE TABLE [Returns] (
-  [ReturnRequestID] VARCHAR (100) PRIMARY KEY,
+  [ReturnRequestID] INT PRIMARY KEY,
   [ReturnRequestDate] DATE,
   [ReturnRequestTime] TIME,
-  [RefundOrderID] VARCHAR(50),
+  [RefundOrderID] INT,
  );
 
 CREATE INDEX [FK] ON  [Returns] ([RefundOrderID]);
@@ -64,17 +64,17 @@ CREATE TABLE [Price] (
 CREATE INDEX [FK] ON  [Price] ([ItemNo]);
 
 CREATE TABLE [Transportation Vendor] (
-  [VendorID] VARCHAR(50) PRIMARY KEY,
+  [VendorID] INT PRIMARY KEY,
   [VendorName] VARCHAR(30),
-  [Address ID] VARCHAR(100),
-  [EmailID] VARCHAR(50)
+  [Address ID] INT,
+  [EmailID] VARCHAR(150)
   
 );
 
 CREATE INDEX [FK] ON  [Transportation Vendor] ([Address ID]);
 
 CREATE TABLE [Transaction] (
-  [TransactionID] VARCHAR(100) PRIMARY KEY,
+  [TransactionID] INT PRIMARY KEY,
   [TransactionMode] VARCHAR(20),
   [TransactionDate] DATE,
   [TransactionTime] TIME,
@@ -83,8 +83,8 @@ CREATE TABLE [Transaction] (
 );
 
 CREATE TABLE [Address] (
-  [Address ID] VARCHAR(30) PRIMARY KEY,
-  [StreetName] VARCHAR(100),
+  [Address ID] INT PRIMARY KEY,
+  [StreetName] VARCHAR(200),
   [City] VARCHAR(30),
   [State] VARCHAR(30),
   [Country] VARCHAR(30),
@@ -102,10 +102,9 @@ CREATE TABLE [Coupon] (
   [DateValidTill] DATE,
  );
 
-
 CREATE TABLE [OrderItem] (
-  [OrderID] VARCHAR(50),
-  [ItemNo] VARCHAR(50),
+  [OrderID] INT,
+  [ItemNo] INT,
   [Quantity] INT
 );
 
@@ -114,11 +113,11 @@ CREATE INDEX [PK, FK1] ON  [OrderItem] ([OrderID]);
 CREATE INDEX [PK, FK2] ON  [OrderItem] ([ItemNo]);
 
 CREATE TABLE [Order] (
-  [OrderID] VARCHAR(50) PRIMARY KEY,
+  [OrderID] INT PRIMARY KEY,
   [OrderDate] DATE,
   [OrderTime] TIME,
-  [OrderStatus] VARCHAR(50),
-  [EmployeeID] VARCHAR(50)
+  [OrderStatus] VARCHAR(20),
+  [EmployeeID] INT
   );
 
 CREATE INDEX [FK] ON  [Order] ([EmployeeID]);
@@ -132,21 +131,21 @@ CREATE TABLE [Inventory] (
 CREATE INDEX [FK] ON  [Inventory] ([ItemNo]);
 
 CREATE TABLE [Customer] (
-  [CustomerID] VARCHAR(50) PRIMARY KEY,
+  [CustomerID] INT PRIMARY KEY,
   [FirstName] VARCHAR(50),
   [LastName] VARCHAR(50),
   [TelephoneNumber] VARCHAR(15),
-  [Address ID] VARCHAR(100),
-  [EmailID] VARCHAR(50)
+  [Address ID] VARCHAR(200),
+  [EmailID] VARCHAR(100)
   );
 
 CREATE INDEX [FK] ON  [Customer] ([Address ID]);
 
 CREATE TABLE [CustomerOrder] (
-  [CustomerID] VARCHAR(50),
-  [OrderID] VARCHAR(50),
-  [InvoiceID] VARCHAR(50),
-  [TransactionID] VARCHAR(50),
+  [CustomerID] INT,
+  [OrderID] INT,
+  [InvoiceID] INT,
+  [TransactionID] INT,
   [ShippingLabelNo] VARCHAR(50)
 );
 
@@ -161,10 +160,10 @@ CREATE INDEX [PK, FK4] ON  [CustomerOrder] ([TransactionID]);
 CREATE INDEX [PK, FK5] ON  [CustomerOrder] ([ShippingLabelNo]);
 
 CREATE TABLE [Distributor] (
-  [DistributorID] VARCHAR(50) PRIMARY KEY,
+  [DistributorID] INT PRIMARY KEY,
   [DistributorName] VARCHAR(50),
   [TelephoneNumber] VARCHAR(15),
-  [Address ID] VARCHAR(100),
+  [Address ID] VARCHAR(200),
   [EmailID] VARCHAR(100)
   );
 
@@ -174,7 +173,7 @@ CREATE TABLE [Item] (
   [ItemNo] VARCHAR(50) PRIMARY KEY,
   [ItemName] VARCHAR(50),
   [CustomerReviews] VARCHAR(200),
-  [CategoryID] VARCHAR(50)
+  [CategoryID] INT
   );
 
 CREATE INDEX [FK] ON  [Item] ([CategoryID]);
@@ -183,18 +182,19 @@ CREATE TABLE [Shipping] (
   [ShippingLabelNo] VARCHAR(50),
   [Origin] VARCHAR(50),
   [Destination] VARCHAR(30),
-  [ShippingStatus] VARCHAR(15),
+  [ShippingStatus] VARCHAR(18),
   [ShippingCost] DECIMAL(20,15),
-  [VendorID] VARCHAR(30)
+  [VendorID] INT
   );
 
 CREATE INDEX [FK] ON  [Shipping] ([VendorID]);
 
 CREATE TABLE [ItemDistributor] (
   [ItemNo] VARCHAR(50),
-  [DistributorID] VARCHAR(50)
+  [DistributorID] INT
 );
 
 CREATE INDEX [PK, FK1] ON  [ItemDistributor] ([ItemNo]);
 
 CREATE INDEX [PK, FK2] ON  [ItemDistributor] ([DistributorID]);
+
