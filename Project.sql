@@ -24,7 +24,7 @@ CREATE TABLE [Employee] (
   [FirstName] VARCHAR(20),
   [LastName] VARCHAR(20),
   [Address ID] INT ,
-  [TelephoneNumber] VARCHAR(12),
+  [TelephoneNumber] INT,
   [Email] VARCHAR(50),
   );
 
@@ -135,7 +135,7 @@ CREATE TABLE [Customer] (
   [FirstName] VARCHAR(50),
   [LastName] VARCHAR(50),
   [TelephoneNumber] INT,
-  [Address ID] VARCHAR(200),
+  [Address ID] INT,
   [EmailID] VARCHAR(100)
   );
 
@@ -162,8 +162,8 @@ CREATE INDEX [PK, FK5] ON  [CustomerOrder] ([ShippingLabelNo]);
 CREATE TABLE [Distributor] (
   [DistributorID] INT PRIMARY KEY,
   [DistributorName] VARCHAR(50),
-  [TelephoneNumber] VARCHAR(15),
-  [Address ID] VARCHAR(200),
+  [TelephoneNumber] INT,
+  [Address ID] INT,
   [EmailID] VARCHAR(100)
   );
 
