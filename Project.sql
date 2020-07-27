@@ -134,7 +134,7 @@ CREATE TABLE [Customer] (
   [CustomerID] INT PRIMARY KEY,
   [FirstName] VARCHAR(50),
   [LastName] VARCHAR(50),
-  [TelephoneNumber] VARCHAR(15),
+  [TelephoneNumber] INT,
   [Address ID] VARCHAR(200),
   [EmailID] VARCHAR(100)
   );
