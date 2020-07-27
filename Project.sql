@@ -1,213 +1,350 @@
-Create DATABASE [Wholesale Database Management System];
-go
-USE [Wholesale Database Management System]
-go
-CREATE TABLE [Invoice] (
-  [InvoiceID] <type>,
-  [InvoiceDate] <type>,
-  [TotalAmount] <type>,
-  [SalesTax] <type>,
-  [Discount] <type>,
-  [CouponCode] <type>,
-  PRIMARY KEY ([InvoiceID])
-);
+--
+--use AdventureWorks2008R2
+CREATE DATABASE [Wholesale Database Management System]; 
 
-CREATE INDEX [FK] ON  [Invoice] ([CouponCode]);
+go 
 
-CREATE TABLE [Refund] (
-  [RefundOrderID] <type>,
-  [RefundStatus] <type>,
-  [RefundAmount] <type>,
-  PRIMARY KEY ([RefundOrderID])
-);
+USE [Wholesale Database Management System] 
 
-CREATE TABLE [Employee] (
-  [EmployeeID] <type>,
-  [FirstName] <type>,
-  [LastName] <type>,
-  [Address ID] <type>,
-  [TelephoneNumber] <type>,
-  [Email] <type>,
-  PRIMARY KEY ([EmployeeID])
-);
+go 
 
-CREATE INDEX [FK] ON  [Employee] ([Address ID]);
+CREATE TABLE [address] 
+  ( 
+     [address id] INT PRIMARY KEY, 
+     [streetname] VARCHAR(200), 
+     [city]       VARCHAR(30), 
+     [state]      VARCHAR(30), 
+     [country]    VARCHAR(30), 
+     [zipcode]    INT, 
+  ); 
 
-CREATE TABLE [CustomerReturnsOrder] (
-  [CustomerID] <type>,
-  [OrderID] <type>,
-  [InvoiceID] <type>,
-  [ReturnRequestID] <type>
-);
+go 
 
-CREATE INDEX [PK, FK1] ON  [CustomerReturnsOrder] ([CustomerID]);
+CREATE TABLE [refund] 
+  ( 
+     [refundorderid] INT PRIMARY KEY, 
+     [refundstatus]  VARCHAR(50), 
+     [refundamount]  DECIMAL(20, 15) 
+  ); 
 
-CREATE INDEX [PK, FK2] ON  [CustomerReturnsOrder] ([OrderID]);
+go 
 
-CREATE INDEX [PK, FK3] ON  [CustomerReturnsOrder] ([InvoiceID]);
+CREATE TABLE [transaction] 
+  ( 
+     [transactionid]     INT PRIMARY KEY, 
+     [transactionmode]   VARCHAR(20), 
+     [transactiondate]   DATE, 
+     [transactiontime]   TIME, 
+     [transactionamount] DECIMAL(20, 5), 
+     [transactionstatus] VARCHAR(20), 
+  ); 
 
-CREATE INDEX [PK, FK4] ON  [CustomerReturnsOrder] ([ReturnRequestID]);
+go 
 
-CREATE TABLE [Returns] (
-  [ReturnRequestID] <type>,
-  [ReturnRequestDate] <type>,
-  [ReturnRequestTime] <type>,
-  [RefundOrderID] <type>,
-  PRIMARY KEY ([ReturnRequestID])
-);
+CREATE TABLE [category] 
+  ( 
+     [categoryid]   INT PRIMARY KEY, 
+     [categoryname] VARCHAR(50), 
+  ); 
 
-CREATE INDEX [FK] ON  [Returns] ([RefundOrderID]);
+go 
 
-CREATE TABLE [Price] (
-  [ItemNo] <type>,
-  [RetailPrice] <type>,
-  [WholesalePrice] <type>,
-  [Discount] <type>
-);
+CREATE TABLE [coupon] 
+  ( 
+     [couponcode]         DECIMAL(20, 15) PRIMARY KEY, 
+     [discountpercentage] DECIMAL(20, 5), 
+     [datevalidtill]      DATE, 
+  ); 
 
-CREATE INDEX [FK] ON  [Price] ([ItemNo]);
+go 
 
-CREATE TABLE [Transportation Vendor] (
-  [VendorID] <type>,
-  [VendorName] <type>,
-  [Address ID] <type>,
-  [EmailID] <type>,
-  PRIMARY KEY ([VendorID])
-);
+CREATE TABLE [invoice] 
+  ( 
+     [invoiceid]   INT PRIMARY KEY, 
+     [invoicedate] DATE, 
+     [totalamount] DECIMAL(20, 15), 
+     [salestax]    DECIMAL(20, 15), 
+     [discount]    DECIMAL(20, 15), 
+     [couponcode]  DECIMAL(20, 15) 
+     FOREIGN KEY ([couponcode]) REFERENCES [coupon]([couponcode]) ON UPDATE 
+     CASCADE 
+  ); 
 
-CREATE INDEX [FK] ON  [Transportation Vendor] ([Address ID]);
+CREATE INDEX [Coupon_FK] 
+  ON [Invoice] ([couponcode]); 
 
-CREATE TABLE [Transaction] (
-  [TransactionID] <type>,
-  [TransactionMode] <type>,
-  [TransactionDate] <type>,
-  [TransactionTime] <type>,
-  [TransactionAmount] <type>,
-  [TransactionStatus] <type>,
-  PRIMARY KEY ([TransactionID])
-);
+go 
 
-CREATE TABLE [Address] (
-  [Address ID] <type>,
-  [StreetName] <type>,
-  [City] <type>,
-  [State] <type>,
-  [Country] <type>,
-  [ZipCode] <type>,
-  PRIMARY KEY ([Address ID])
-);
+CREATE TABLE [employee] 
+  ( 
+     [employeeid]      INT PRIMARY KEY, 
+     [firstname]       VARCHAR(20), 
+     [lastname]        VARCHAR(20), 
+     [address id]      INT, 
+     [telephonenumber] INT, 
+     [email]           VARCHAR(50), 
+     FOREIGN KEY ([address id]) REFERENCES [address]([address id]) ON UPDATE 
+     CASCADE ON DELETE CASCADE 
+  ); 
 
-CREATE TABLE [Category] (
-  [ CategoryID] <type>,
-  [CategoryName] <type>,
-  PRIMARY KEY ([ CategoryID])
-);
+CREATE INDEX [Address_EMP_FK] 
+  ON [Employee] ([address id]); 
 
-CREATE TABLE [Coupon] (
-  [CouponCode] <type>,
-  [DiscountPercentage] <type>,
-  [DateValidTill] <type>,
-  PRIMARY KEY ([CouponCode])
-);
+CREATE TABLE [customerreturnsorder] 
+  ( 
+     [customerid]      INT, 
+     [orderid]         INT, 
+     [invoiceid]       INT, 
+     [returnrequestid] INT, 
+     CONSTRAINT pk_cro PRIMARY KEY([customerid], [orderid], [invoiceid], 
+     [returnrequestid]) 
+  ); 
 
-CREATE TABLE [OrderItem] (
-  [OrderID] <type>,
-  [ItemNo] <type>,
-  [Quantity] <type>
-);
+go 
 
-CREATE INDEX [PK, FK1] ON  [OrderItem] ([OrderID]);
+ALTER TABLE [customerreturnsorder] 
+  ADD CONSTRAINT fk_cro_1 FOREIGN KEY ([customerid]) REFERENCES 
+  [Customer].[customerid] ON DELETE CASCADE ON UPDATE CASCADE; 
 
-CREATE INDEX [PK, FK2] ON  [OrderItem] ([ItemNo]);
+ALTER TABLE [customerreturnsorder] 
+  ADD CONSTRAINT fk_cro_2 FOREIGN KEY ([orderid]) REFERENCES [Order].[orderid] 
+  ON DELETE CASCADE ON UPDATE CASCADE; 
 
-CREATE TABLE [Order] (
-  [OrderID] <type>,
-  [OrderDate] <type>,
-  [OrderTime] <type>,
-  [OrderStatus] <type>,
-  [EmployeeID] <type>,
-  PRIMARY KEY ([OrderID])
-);
+ALTER TABLE [customerreturnsorder] 
+  ADD CONSTRAINT fk_cro_3 FOREIGN KEY ([invoiceid]) REFERENCES 
+  [Invoice].[invoiceid] ON DELETE CASCADE ON UPDATE CASCADE; 
 
-CREATE INDEX [FK] ON  [Order] ([EmployeeID]);
+ALTER TABLE [customerreturnsorder] 
+  ADD CONSTRAINT fk_cro_4 FOREIGN KEY ([returnrequestid]) REFERENCES 
+  [Returns].[returnrequestid] ON DELETE CASCADE ON UPDATE CASCADE; 
 
-CREATE TABLE [Inventory] (
-  [ItemNo] <type>,
-  [QuantityInStock] <type>,
-  [Inventory Costs] <type>
-);
+go 
 
-CREATE INDEX [FK] ON  [Inventory] ([ItemNo]);
+CREATE INDEX [PK_CRO, FK_CRO_1] 
+  ON [CustomerReturnsOrder] ([customerid]); 
 
-CREATE TABLE [Customer] (
-  [CustomerID] <type>,
-  [FirstName] <type>,
-  [LastName] <type>,
-  [TelephoneNumber] <type>,
-  [Address ID] <type>,
-  [EmailID] <type>,
-  PRIMARY KEY ([CustomerID])
-);
+CREATE INDEX [PK_CRO, FK_CRO_2] 
+  ON [CustomerReturnsOrder] ([orderid]); 
 
-CREATE INDEX [FK] ON  [Customer] ([Address ID]);
+CREATE INDEX [PK_CRO, FK_CRO_3] 
+  ON [CustomerReturnsOrder] ([invoiceid]); 
 
-CREATE TABLE [CustomerOrder] (
-  [CustomerID] <type>,
-  [OrderID] <type>,
-  [InvoiceID] <type>,
-  [TransactionID] <type>,
-  [ShippingLabelNo] <type>
-);
+CREATE INDEX [PK_CRO, FK_CRO_4] 
+  ON [CustomerReturnsOrder] ([returnrequestid]); 
 
-CREATE INDEX [PK, FK1] ON  [CustomerOrder] ([CustomerID]);
+go 
 
-CREATE INDEX [PK, FK2] ON  [CustomerOrder] ([OrderID]);
+CREATE TABLE [returns] 
+  ( 
+     [returnrequestid]   INT PRIMARY KEY, 
+     [returnrequestdate] DATE, 
+     [returnrequesttime] TIME, 
+     [refundorderid]     INT, 
+     FOREIGN KEY ([refundorderid]) REFERENCES [refund]([refundorderid]) ON 
+     UPDATE CASCADE ON DELETE CASCADE 
+  ); 
 
-CREATE INDEX [PK, FK3] ON  [CustomerOrder] ([InvoiceID]);
+CREATE INDEX [FK_RETURN] 
+  ON [Returns] ([refundorderid]); 
 
-CREATE INDEX [PK, FK4] ON  [CustomerOrder] ([TransactionID]);
+CREATE TABLE [item] 
+  ( 
+     [itemno]          INT PRIMARY KEY, 
+     [itemname]        VARCHAR(50), 
+     [customerreviews] VARCHAR(200), 
+     [categoryid]      INT, 
+     FOREIGN KEY ([categoryid]) REFERENCES [category]([categoryid]) ON UPDATE 
+     CASCADE ON DELETE CASCADE 
+  ); 
 
-CREATE INDEX [PK, FK5] ON  [CustomerOrder] ([ShippingLabelNo]);
+CREATE INDEX [FK_Item_cat] 
+  ON [Item] ([categoryid]); 
 
-CREATE TABLE [Distributor] (
-  [DistributorID] <type>,
-  [DistributorName] <type>,
-  [TelephoneNumber] <type>,
-  [Address ID] <type>,
-  [EmailID] <type>,
-  PRIMARY KEY ([DistributorID])
-);
+CREATE TABLE [price] 
+  ( 
+     [itemno]         INT, 
+     [retailprice]    DECIMAL(20, 5), 
+     [wholesaleprice] DECIMAL(20, 5), 
+     [discount]       DECIMAL(20, 5), 
+     FOREIGN KEY ([itemno]) REFERENCES [item]([itemno]) ON UPDATE CASCADE ON 
+     DELETE CASCADE 
+  ); 
 
-CREATE INDEX [FK] ON  [Distributor] ([Address ID]);
+CREATE INDEX [FK_ITEM] 
+  ON [Price] ([itemno]); 
 
-CREATE TABLE [Item] (
-  [ItemNo] <type>,
-  [ItemName] <type>,
-  [CustomerReviews] <type>,
-  [CategoryID] <type>,
-  PRIMARY KEY ([ItemNo])
-);
+CREATE TABLE [transportation vendor] 
+  ( 
+     [vendorid]   INT PRIMARY KEY, 
+     [vendorname] VARCHAR(30), 
+     [address id] INT, 
+     [emailid]    VARCHAR(150), 
+     FOREIGN KEY ([address id]) REFERENCES [address]([address id]) ON UPDATE 
+     CASCADE ON DELETE CASCADE 
+  ); 
 
-CREATE INDEX [FK] ON  [Item] ([CategoryID]);
+CREATE INDEX [FK_T_Address] 
+  ON [Transportation Vendor] ([address id]); 
 
-CREATE TABLE [Shipping] (
-  [ShippingLabelNo] <type>,
-  [Origin] <type>,
-  [Destination] <type>,
-  [ShippingStatus] <type>,
-  [ShippingCost] <type>,
-  [VendorID] <type>,
-  PRIMARY KEY ([ShippingLabelNo])
-);
+CREATE TABLE [orderitem] 
+  ( 
+     [orderid]  INT, 
+     [itemno]   INT, 
+     [quantity] INT, 
+     CONSTRAINT pk_oi PRIMARY KEY([orderid], [itemno]) 
+  ); 
 
-CREATE INDEX [FK] ON  [Shipping] ([VendorID]);
+ALTER TABLE [customerreturnsorder] 
+  ADD CONSTRAINT fk_oi_1 FOREIGN KEY ([orderid]) REFERENCES [Order].[orderid] ON 
+  DELETE CASCADE ON UPDATE CASCADE; 
 
-CREATE TABLE [ItemDistributor] (
-  [ItemNo] <type>,
-  [DistributorID] <type>
-);
+ALTER TABLE [customerreturnsorder] 
+  ADD CONSTRAINT fk_oi_2 FOREIGN KEY ([itemno]) REFERENCES [Item].[itemno] ON 
+  DELETE CASCADE ON UPDATE CASCADE; 
 
-CREATE INDEX [PK, FK1] ON  [ItemDistributor] ([ItemNo]);
+CREATE INDEX [PK_OI, FK_OI_1] 
+  ON [OrderItem] ([orderid]); 
 
-CREATE INDEX [PK, FK2] ON  [ItemDistributor] ([DistributorID]);
+CREATE INDEX [PK_OI, FK_OI_2] 
+  ON [OrderItem] ([itemno]); 
 
+CREATE TABLE [order] 
+  ( 
+     [orderid]     INT PRIMARY KEY, 
+     [orderdate]   DATE, 
+     [ordertime]   TIME, 
+     [orderstatus] VARCHAR(20), 
+     [employeeid]  INT, 
+     FOREIGN KEY ([employeeid]) REFERENCES [employee]([employeeid]) ON UPDATE 
+     CASCADE ON DELETE CASCADE 
+  ); 
+
+CREATE INDEX [FK_O_Emp] 
+  ON [Order] ([employeeid]); 
+
+CREATE TABLE [inventory] 
+  ( 
+     [itemno]          INT, 
+     [quantityinstock] INT, 
+     [inventory costs] DECIMAL(20, 15), 
+     FOREIGN KEY ([itemno]) REFERENCES [item]([itemno]) ON UPDATE CASCADE ON 
+     DELETE CASCADE 
+  ); 
+
+CREATE INDEX [FK_I_ITEM] 
+  ON [Inventory] ([itemno]); 
+
+CREATE TABLE [customer] 
+  ( 
+     [customerid]      INT PRIMARY KEY, 
+     [firstname]       VARCHAR(50), 
+     [lastname]        VARCHAR(50), 
+     [telephonenumber] INT, 
+     [address id]      INT, 
+     [emailid]         VARCHAR(100), 
+     FOREIGN KEY ([address id]) REFERENCES [address]([address id]) ON UPDATE 
+     CASCADE ON DELETE CASCADE 
+  ); 
+
+CREATE INDEX [FK_Cust_Add] 
+  ON [Customer] ([address id]); 
+
+CREATE TABLE [customerorder] 
+  ( 
+     [customerid]      INT, 
+     [orderid]         INT, 
+     [invoiceid]       INT, 
+     [transactionid]   INT, 
+     [shippinglabelno] VARCHAR(50), 
+     CONSTRAINT pk_co PRIMARY KEY([customerid], [orderid], [invoiceid], 
+     [transactionid], [shippinglabelno]) 
+  ); 
+
+go 
+
+ALTER TABLE [customerorder] 
+  ADD CONSTRAINT fk_co_1 FOREIGN KEY ([customerid]) REFERENCES 
+  [Customer].[customerid] ON DELETE CASCADE ON UPDATE CASCADE; 
+
+ALTER TABLE [customerorder] 
+  ADD CONSTRAINT fk_co_2 FOREIGN KEY ([orderid]) REFERENCES [Order].[orderid] ON 
+  DELETE CASCADE ON UPDATE CASCADE; 
+
+ALTER TABLE [customerorder] 
+  ADD CONSTRAINT fk_co_3 FOREIGN KEY ([invoiceid]) REFERENCES 
+  [Invoice].[invoiceid] ON DELETE CASCADE ON UPDATE CASCADE; 
+
+ALTER TABLE [customerorder] 
+  ADD CONSTRAINT fk_co_4 FOREIGN KEY ([transactionid]) REFERENCES 
+  [Transaction].[transactionid] ON DELETE CASCADE ON UPDATE CASCADE; 
+
+ALTER TABLE [customerorder] 
+  ADD CONSTRAINT fk_co_5 FOREIGN KEY ([shippinglabelno]) REFERENCES 
+  [Shipping].[shippinglabelno] ON DELETE CASCADE ON UPDATE CASCADE; 
+
+go 
+
+CREATE INDEX [PK_CO, FK_CO_1] 
+  ON [CustomerOrder] ([customerid]); 
+
+CREATE INDEX [PK_CO, FK_CO_2] 
+  ON [CustomerOrder] ([orderid]); 
+
+CREATE INDEX [PK_CO, FK_CO_3] 
+  ON [CustomerOrder] ([invoiceid]); 
+
+CREATE INDEX [PK_CO, FK_CO_4] 
+  ON [CustomerOrder] ([transactionid]); 
+
+CREATE INDEX [PK_CO, FK_CO_5] 
+  ON [CustomerOrder] ([shippinglabelno]); 
+
+CREATE TABLE [distributor] 
+  ( 
+     [distributorid]   INT PRIMARY KEY, 
+     [distributorname] VARCHAR(50), 
+     [telephonenumber] INT, 
+     [address id]      INT, 
+     [emailid]         VARCHAR(100), 
+     FOREIGN KEY ([address id]) REFERENCES [address]([address id]) ON UPDATE 
+     CASCADE ON DELETE CASCADE 
+  ); 
+
+CREATE INDEX [FK_D_Add] 
+  ON [Distributor] ([address id]); 
+
+CREATE TABLE [shipping] 
+  ( 
+     [shippinglabelno] VARCHAR(50) PRIMARY KEY, 
+     [origin]          VARCHAR(50), 
+     [destination]     VARCHAR(30), 
+     [shippingstatus]  VARCHAR(18), 
+     [shippingcost]    DECIMAL(20, 15), 
+     [vendorid]        INT, 
+     FOREIGN KEY ([vendorid]) REFERENCES [transportation vendor]([vendorid]) ON 
+     UPDATE CASCADE ON DELETE CASCADE 
+  ); 
+
+CREATE INDEX [FK_Vendor] 
+  ON [Shipping] ([vendorid]); 
+
+CREATE TABLE [itemdistributor] 
+  ( 
+     [itemno]        VARCHAR(50), 
+     [distributorid] INT, 
+     CONSTRAINT pk_id PRIMARY KEY([itemno], [distributorid]) 
+  ); 
+
+ALTER TABLE [itemdistributor] 
+  ADD CONSTRAINT fk_id_1 FOREIGN KEY ([itemno]) REFERENCES [Item].[itemno] ON 
+  DELETE CASCADE ON UPDATE CASCADE; 
+
+ALTER TABLE [customerreturnsorder] 
+  ADD CONSTRAINT fk_id_2 FOREIGN KEY ([distributorid]) REFERENCES 
+  [Distributor].[distributorid] ON DELETE CASCADE ON UPDATE CASCADE; 
+
+CREATE INDEX [PK_ID, FK_ID_1] 
+  ON [ItemDistributor] ([itemno]); 
+
+CREATE INDEX [PK_ID, FK_ID_2] 
+  ON [ItemDistributor] ([distributorid]); 
