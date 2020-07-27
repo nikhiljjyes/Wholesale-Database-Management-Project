@@ -92,7 +92,7 @@ CREATE TABLE [Address] (
   );
 
 CREATE TABLE [Category] (
-  [ CategoryID] VARCHAR(50) PRIMARY KEY,
+  [ CategoryID] INT PRIMARY KEY,
   [CategoryName] VARCHAR(50),
   );
 
