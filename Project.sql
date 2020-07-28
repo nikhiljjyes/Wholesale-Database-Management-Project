@@ -42,7 +42,7 @@ CREATE TABLE [Category] (
   -------------------------------------------------------------------------------------------------------
 CREATE TABLE [Coupon] (
   [CouponCode] Decimal(20,15) PRIMARY KEY NOT NULL ,
-  [DiscountPercentage] DECIMAL(20,5) NOT NULL ,
+  [DiscountPercentage] DECIMAL(4,2) NOT NULL ,
   [DateValidTill] DATE NOT NULL ,
   );
  GO
@@ -53,7 +53,7 @@ CREATE TABLE [Invoice] (
   [InvoiceDate] DATE NOT NULL ,
   [TotalAmount] Decimal(20,15) NOT NULL ,
   [SalesTax] Decimal(20,15) NOT NULL ,
-  [Discount] Decimal(20,15) NOT NULL ,
+  [Discount] Decimal(4,2) NOT NULL ,
   [CouponCode] Decimal(20,15) NOT NULL 
   FOREIGN KEY ([CouponCode])
         REFERENCES [Coupon]([CouponCode])
@@ -213,7 +213,7 @@ CREATE TABLE [Price] (
   [ItemNo] INT NOT NULL,
   [RetailPrice] DECIMAL(20,5) NOT NULL,
   [WholesalePrice] DECIMAL(20,5) NOT NULL,
-  [Discount] DECIMAL(20,5) NOT NULL,
+  [Discount] DECIMAL(4,2) NOT NULL,
   FOREIGN KEY ([ItemNo])
         REFERENCES [Item]([ItemNo])
         ON update CASCADE ON Delete CASCADE
