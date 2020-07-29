@@ -1,5 +1,6 @@
 -------------------------------------------------------------------------------------------------------
 --CREATE DATABASE
+--CREATE DATABASE
 Create DATABASE [Wholesale Database Management System];
 go
 USE [Wholesale Database Management System];
@@ -13,14 +14,14 @@ CREATE TABLE [Address] (
   [City] VARCHAR(30) NOT NULL ,
   [State] VARCHAR(30) NOT NULL ,
   [Country] VARCHAR(30) NOT NULL ,
-  [ZipCode] INT NOT NULL ,
+  [ZipCode] INT NOT NULL 
   );
   GO
   -------------------------------------------------------------------------------------------------------
 CREATE TABLE [Refund] (
   [RefundOrderID] INT PRIMARY KEY NOT NULL ,
-  [RefundStatus] VARCHAR(50),
-  [RefundAmount] Decimal(20,2)
+  [RefundStatus] VARCHAR(50) NOT NULL,
+  [RefundAmount] Decimal(20,2) 
   );
   GO
   -------------------------------------------------------------------------------------------------------
@@ -30,20 +31,20 @@ CREATE TABLE [Transaction] (
   [TransactionDate] DATE NOT NULL ,
   [TransactionTime] TIME NOT NULL ,
   [TransactionAmount] DECIMAL(20,2) NOT NULL ,
-  [TransactionStatus] VARCHAR(20) NOT NULL ,
+  [TransactionStatus] VARCHAR(20) NOT NULL 
   );
 GO
 -------------------------------------------------------------------------------------------------------
 CREATE TABLE [Category] (
   [CategoryID] INT PRIMARY KEY NOT NULL ,
-  [CategoryName] VARCHAR(50) NOT NULL ,
+  [CategoryName] VARCHAR(50) NOT NULL 
   );
   GO
   -------------------------------------------------------------------------------------------------------
 CREATE TABLE [Coupon] (
   [CouponCode] VARCHAR(30) PRIMARY KEY NOT NULL ,
   [DiscountPercentage] DECIMAL(4,2) NOT NULL ,
-  [DateValidTill] DATE NOT NULL ,
+  [DateValidTill] DATE NOT NULL 
   );
  GO
  -------------------------------------------------------------------------------------------------------
@@ -53,7 +54,7 @@ CREATE TABLE [Invoice] (
   [InvoiceDate] DATE NOT NULL ,
   [TotalAmount] Decimal(20,2) NOT NULL ,
   [SalesTax] Decimal(20,2) NOT NULL ,
-  [Discount] Decimal(4,2) NOT NULL ,
+  [Discount] Decimal(4,2)  ,
   [CouponCode] VARCHAR(30)  
   FOREIGN KEY ([CouponCode])
         REFERENCES [Coupon]([CouponCode])
@@ -113,7 +114,7 @@ CREATE TABLE [Returns] (
   [ReturnRequestID] INT PRIMARY KEY NOT NULL ,
   [ReturnRequestDate] DATE NOT NULL ,
   [ReturnRequestTime] TIME NOT NULL ,
-  [RefundOrderID] INT NOT NULL ,
+  [RefundOrderID] INT  ,
   FOREIGN KEY ([RefundOrderID])
         REFERENCES [Refund]([RefundOrderID])
         ON update CASCADE ON Delete CASCADE);
@@ -126,7 +127,7 @@ CREATE TABLE [Item] (
   [ItemNo] INT PRIMARY KEY NOT NULL ,
   [ItemName] VARCHAR(50) NOT NULL ,
   [CustomerReviews] VARCHAR(200) NOT NULL ,
-  [CategoryID] INT  ,
+  [CategoryID] INT  NOT NULL,
   FOREIGN KEY ([CategoryID])
         REFERENCES [Category]([CategoryID])
         ON update CASCADE ON Delete CASCADE
@@ -213,7 +214,7 @@ CREATE TABLE [Price] (
   [ItemNo] INT NOT NULL,
   [RetailPrice] DECIMAL(20,2) NOT NULL,
   [WholesalePrice] DECIMAL(20,2) NOT NULL,
-  [Discount] DECIMAL(4,2) NOT NULL,
+  [Discount] DECIMAL(4,2) ,
   FOREIGN KEY ([ItemNo])
         REFERENCES [Item]([ItemNo])
         ON update CASCADE ON Delete CASCADE
@@ -841,3 +842,79 @@ insert into [CustomerReturnsOrder] ([CustomerID], [OrderID], [InvoiceID], [Retur
 insert into [CustomerReturnsOrder] ([CustomerID], [OrderID], [InvoiceID], [ReturnRequestID]) values (3050, 8100, 7090, 202039);
 
 select * from CustomerReturnsOrder;
+GO
+-----------------------------------------------------------------------------------------------------------------
+-- CREATE VEIWS 
+
+CREATE VIEW CustomerInfo
+WITH ENCRYPTION, SCHEMABINDING
+AS
+SELECT CustomerID, FirstName, LastName, TelephoneNumber, EmailID, 
+CONCAT([AddressLine 1],',',' ', [AddressLine 2],',',' ', City,',',' ', State,',',' ', Country,',',' ', ZipCode) AS Address
+FROM [dbo].[Customer] c JOIN [dbo].[Address] a ON c.[Address ID] = a.[Address ID]
+
+GO
+CREATE VIEW OrderDetails
+AS
+SELECT CONCAT(FirstName, ' ', LastName) AS CustomerName, 
+co.OrderID, o.OrderDate, co.InvoiceID, InvoiceDate, TotalAmount, SalesTax, Discount, OrderStatus, TransactionStatus, TransactionAmount
+FROM  [dbo].[CustomerOrder] co JOIN [dbo].[Order] o ON co.OrderID = o.OrderID
+							   JOIN [dbo].[Transaction] t ON co.TransactionID = t.TransactionID
+							   JOIN [dbo].[Invoice] i ON co.InvoiceID = i.InvoiceID 
+							   JOIN [dbo].[Customer] c ON c.CustomerID = co.CustomerID
+GO
+SELECT * FROM OrderDetails
+GO
+CREATE VIEW InvetoryDetails
+AS
+SELECT i.ItemNo, ItemName, QuantityInStock, [Inventory Costs]
+FROM [dbo].[Item] i JOIN [dbo].[Inventory] iv ON i.ItemNo = iv.ItemNo;
+GO
+SELECT * FROM InvetoryDetails;
+GO
+CREATE VIEW OrderDeliveryStatus
+AS
+SELECT CONCAT(FirstName, ' ', LastName) AS CustomerName, o.OrderID, o.OrderStatus, OrderDate, co.ShippingLabelNo, ShippingStatus
+FROM [dbo].[CustomerOrder] co JOIN [dbo].[Order] o ON co.OrderID = o.OrderID
+							  JOIN [dbo].[Shipping] s ON co.ShippingLabelNo = s.ShippingLabelNo
+							  JOIN [dbo].[Customer] c ON c.CustomerID = co.CustomerID;
+GO
+SELECT * FROM OrderDeliveryStatus;
+GO
+CREATE VIEW DistributorItems
+AS 
+SELECT id.DistributorID, DistributorName, ItemName
+FROM Distributor d JOIN ItemDistributor id ON d.DistributorID = id.DistributorID
+				   JOIN Item i ON i.ItemNo = id.ItemNo;
+GO
+SELECT * FROM DistributorItems;
+GO
+CREATE VIEW CustomerRefunds
+AS
+SELECT CONCAT(FirstName, ' ', LastName) AS CustomerName, 
+cro.OrderID, cro.ReturnRequestID, ReturnRequestDate, ReturnRequestTime, RefundStatus, RefundAmount
+FROM CustomerReturnsOrder cro JOIN Customer c ON cro.CustomerID = c.CustomerID
+							  JOIN [dbo].[Order] o ON o.OrderID = cro.OrderID
+							  JOIN [dbo].[Returns] r ON r.ReturnRequestID = cro.ReturnRequestID
+							  JOIN Refund re ON r.RefundOrderID = re.RefundOrderID;
+GO
+SELECT * FROM CustomerRefunds;
+GO
+
+CREATE VIEW SalesItems
+AS
+SELECT OrderID, io.ItemNo, ItemName, Quantity AS OrderQty
+FROM OrderItem io JOIN Item i ON io.ItemNo = i.ItemNo;
+GO
+SELECT * FROM SalesItems;
+GO
+CREATE VIEW EmployeeCouponAccess
+WITH ENCRYPTION
+AS
+SELECT *
+FROM Coupon;
+GO
+SELECT * FROM EmployeeCouponAccess;
+GO
+--------------------------------------------------------------
+
