@@ -1,7 +1,3 @@
-USE AdventureWorks2008R2
-DROP DATABASE [Wholesale Database Management System];
-go
--------------------------------------------------------------------------------------------------------
 --CREATE DATABASE
 Create DATABASE [Wholesale Database Management System];
 go
@@ -349,15 +345,15 @@ BEGIN
 END;
 go
 --
-CREATE FUNCTION TotalMonthlyDiscount (@Year INT, @Month INT)
+CREATE FUNCTION AVGMonthlyDiscount (@Year INT, @Month INT)
 		RETURNS DEC (20, 2)
 AS
 BEGIN
-	DECLARE @TotalDiscount DEC (20, 2)
-	SELECT @TotalDiscount = ISNULL(SUM(Discount), 0)
+	DECLARE @AVGDiscount DEC (20, 2)
+	SELECT @AVGDiscount = ISNULL(AVG(Discount), 0)
 	FROM [Wholesale Database Management System].[dbo].[Invoice]
 	WHERE YEAR(InvoiceDate) = @Year AND MONTH(InvoiceDate) = @Month
-	RETURN @TotalDiscount
+	RETURN @AVGDiscount
 END;
 go
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1036,7 +1032,7 @@ GO
 ----------------------------------------------------------------------------------------------------------------------------------------------------------
 
 -- Test Computed Columns based on Functions
-SELECT dbo.TotalMonthlyDiscount (2020, 06) AS TotalDiscount;
+SELECT dbo.AVGMonthlyDiscount (2020, 06) AS AVGDiscount;
 go
 SELECT dbo.MonthlySalesTax (2020, 05) AS TotalSalesTax;
 go
