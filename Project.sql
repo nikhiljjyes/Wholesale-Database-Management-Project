@@ -320,7 +320,7 @@ ALTER TABLE [Category]
 ADD CONSTRAINT chkRowCount CHECK (dbo.CheckFnctn() >= 1 );  
 GO 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---Computed Columns based on FUNCTIONS
+--FUNCTIONS
 CREATE FUNCTION ParticularMonthYearSales (@Year INT, @Month INT)
 	   RETURNS DEC (20, 2)
 AS
@@ -356,54 +356,6 @@ BEGIN
 	RETURN @AVGDiscount
 END;
 go
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---------------------------------------------------------------
-CREATE TRIGGER [dbo].transact
-   ON [dbo].[Transaction]
-   AFTER UPDATE
-AS BEGIN
-    SET NOCOUNT ON; 
-
- IF (SELECT D.TransactionStatus  FROM [Transaction] O inner join inserted d on o.TransactionID = d.[TransactionID]                
-    WHERE D.[TransactionID] = d.[TransactionID]  )  = 'Approved'
-
-UPDATE [Order]
-    SET [OrderStatus] = 'Completed' FROM [Order] S 
-    INNER JOIN CustomerOrder I ON S.[OrderID] = I.[OrderID] 
-    INNER JOIN inserted D ON I.TransactionID = D.[TransactionID]    ;
-ELSE
-UPDATE [Order]
-    SET [OrderStatus] = 'Pending' FROM [Order] S 
-    INNER JOIN CustomerOrder I ON S.[OrderID] = I.[OrderID] 
-    INNER JOIN inserted D ON I.TransactionID = D.[TransactionID]   ;
-END
-go
---
-CREATE Trigger ComputeSalesTax
-ON [dbo].[Invoice]
-AFTER INSERT, UPDATE
-AS 
-BEGIN
- DECLARE @InvoiceID INT
- SET @InvoiceID = ISNULL((SELECT InvoiceID FROM inserted), (SELECT InvoiceID FROM deleted))
- UPDATE [dbo].[Invoice]
- SET SalesTax = 0.15*TotalAmount
- WHERE @InvoiceID = InvoiceID
- END;
- go
- -- 
-CREATE TRIGGER ComputeInventorycosts
-ON [dbo].[Inventory]
-AFTER INSERT, UPDATE
-AS 
-BEGIN
-DECLARE @Itemno INT
-SET @Itemno= ISNULL((SELECT [ItemNo] FROM inserted), (SELECT [ItemNo] FROM deleted))
-UPDATE [Inventory]
-SET [Inventory Costs]= 0.01*QuantityInStock
-WHERE @Itemno=[ItemNo]
-END;
-GO
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- POPULATING DATABASE WITH TEST DATA
 insert into Address ([Address ID], [AddressLine 1], [AddressLine 2], [City], [State], [Country], [ZipCode]) values (1010, '53', 'Vermont', 'Toledo', 'Ohio', 'United States', '43605');
@@ -726,27 +678,26 @@ insert into [Returns] ([ReturnRequestID], [ReturnRequestDate], [ReturnRequestTim
 insert into [Returns] ([ReturnRequestID], [ReturnRequestDate], [ReturnRequestTime], [RefundOrderID]) values (202039, '5/4/2020', '1:08 AM', 9110);
 --
 select * from Returns;
-
-insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101010, 'Credit', '5/24/2020', '4:08 PM', 4993.51, 'Approved');
-insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101011, 'Cash', '3/28/2020', '7:34 AM', 6648.04, 'Initiated');
-insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101012, 'Cash', '2/15/2020', '7:40 PM', 5372.37, 'Initiated');
-insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101013, 'Debit', '8/13/2019', '12:00 AM', 7991.15, 'Initiated');
-insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101014, 'Debit', '8/20/2019', '6:27 PM', 4551.65, 'Initiated');
-insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101015, 'PayPal', '3/7/2020', '10:00 AM', 2842.51, 'Initiated');
-insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101016, 'Debit', '10/10/2019', '10:10 PM', 6814.03, 'Initiated');
-insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101017, 'Credit', '5/15/2020', '5:48 PM', 5315.82, 'Initiated');
-insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101018, 'Debit', '2/27/2020', '5:28 AM', 102.46, 'Initiated');
-insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101019, 'Credit', '4/21/2020', '8:18 AM', 2183.37, 'Initiated');
-insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101020, 'PayPal', '9/24/2019', '9:03 AM', 5715.21, 'Initiated');
-insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101021, 'Debit', '4/17/2020', '3:18 AM', 2128.62, 'Initiated');
-insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101022, 'Cash', '2/13/2020', '6:11 PM', 8794.34, 'Initiated');
-insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101023, 'Debit', '5/16/2020', '11:19 AM', 9917.24, 'Initiated');
-insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101024, 'Cash', '8/28/2019', '4:27 AM', 8917.73, 'Initiated');
-insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101025, 'Cash', '1/30/2020', '2:52 AM', 4179.29, 'Initiated');
-insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101026, 'Debit', '8/7/2019', '5:41 PM', 1712.13, 'Initiated');
-insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101027, 'PayPal', '8/15/2019', '10:40 PM', 8334.48, 'Initiated');
-insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101028, 'Debit', '1/9/2020', '11:41 AM', 8458.03, 'Initiated');
-insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101029, 'Credit', '3/24/2020', '11:52 PM', 5248.42, 'Initiated');
+insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101010, 'Credit', '5/24/2020', '4:08 PM',1726.76, 'Approved');
+insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101011, 'Cash', '3/28/2020', '7:34 AM',2208.7, 'Initiated');
+insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101012, 'Cash', '2/15/2020', '7:40 PM',4830.7, 'Initiated');
+insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101013, 'Debit', '8/13/2019', '12:00 AM',806.05, 'Initiated');
+insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101014, 'Debit', '8/20/2019', '6:27 PM',10566.55, 'Initiated');
+insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101015, 'PayPal', '3/7/2020', '10:00 AM',4918.1, 'Initiated');
+insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101016, 'Debit', '10/10/2019', '10:10 PM',8915.05, 'Initiated');
+insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101017, 'Credit', '5/15/2020', '5:48 PM',6155.85, 'Initiated');
+insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101018, 'Debit', '2/27/2020', '5:28 AM',3523.5, 'Initiated');
+insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101019, 'Credit', '4/21/2020', '8:18 AM',8749.8, 'Initiated');
+insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101020, 'PayPal', '9/24/2019', '9:03 AM',5235.85, 'Initiated');
+insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101021, 'Debit', '4/17/2020', '3:18 AM',7048.95, 'Initiated');
+insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101022, 'Cash', '2/13/2020', '6:11 PM',283.5, 'Initiated');
+insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101023, 'Debit', '5/16/2020', '11:19 AM',4291.35, 'Initiated');
+insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101024, 'Cash', '8/28/2019', '4:27 AM',8309.1, 'Initiated');
+insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101025, 'Cash', '1/30/2020', '2:52 AM',1117.25, 'Initiated');
+insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101026, 'Debit', '8/7/2019', '5:41 PM',632.05, 'Initiated');
+insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101027, 'PayPal', '8/15/2019', '10:40 PM',6421.15, 'Initiated');
+insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101028, 'Debit', '1/9/2020', '11:41 AM',7905.35, 'Initiated');
+insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101029, 'Credit', '3/24/2020', '11:52 PM',3949.8, 'Initiated');
 --
 select * from [Transaction];
 
@@ -936,6 +887,110 @@ insert into [CustomerReturnsOrder] ([CustomerID], [OrderID], [InvoiceID], [Retur
 select * from CustomerReturnsOrder;
 GO
 -----------------------------------------------------------------------------------------------------------------
+
+--CREATE TRIGGER
+CREATE TRIGGER [dbo].transact
+   ON [dbo].[Transaction]
+   AFTER UPDATE
+AS BEGIN
+    SET NOCOUNT ON; 
+
+ IF (SELECT D.TransactionStatus  FROM [Transaction] O inner join inserted d on o.TransactionID = d.[TransactionID]                
+    WHERE D.[TransactionID] = d.[TransactionID]  )  = 'Approved'
+
+UPDATE [Order]
+    SET [OrderStatus] = 'Completed' FROM [Order] S 
+    INNER JOIN CustomerOrder I ON S.[OrderID] = I.[OrderID] 
+    INNER JOIN inserted D ON I.TransactionID = D.[TransactionID]    ;
+ELSE
+UPDATE [Order]
+    SET [OrderStatus] = 'Pending' FROM [Order] S 
+    INNER JOIN CustomerOrder I ON S.[OrderID] = I.[OrderID] 
+    INNER JOIN inserted D ON I.TransactionID = D.[TransactionID]   ;
+END
+go
+--
+CREATE Trigger ComputeSalesTax
+ON [dbo].[Invoice]
+AFTER INSERT, UPDATE
+AS 
+BEGIN
+ DECLARE @InvoiceID INT
+ SET @InvoiceID = ISNULL((SELECT InvoiceID FROM inserted), (SELECT InvoiceID FROM deleted))
+ UPDATE [dbo].[Invoice]
+ SET SalesTax = 0.15*TotalAmount
+ WHERE @InvoiceID = InvoiceID
+ END;
+ go
+ -- 
+ CREATE TRIGGER CalculateTransactionAmount
+ON [dbo].[Invoice]
+AFTER  UPDATE
+AS 
+BEGIN
+SET NOCOUNT ON;
+DECLARE @TotalAmount INT
+DECLARE @SalesTax INT
+DECLARE @Discount INT
+DECLARE @Invoiceid INT
+
+SET @TotalAmount= ISNULL((SELECT [TotalAmount] FROM inserted), (SELECT [TotalAmount] FROM deleted ))
+SET @SalesTax= ISNULL((SELECT [SalesTax] FROM inserted), (SELECT [SalesTax] FROM deleted ))
+SET @Discount= ISNULL((SELECT [Discount] FROM inserted), (SELECT [Discount] FROM deleted ))
+SET @Invoiceid= ISNULL((SELECT [InvoiceID] FROM inserted), (SELECT [InvoiceID] FROM deleted ))
+
+UPDATE [dbo].[Transaction]
+SET [TransactionAmount] = (@TotalAmount + @SalesTax - @Discount)
+FROM dbo.CustomerOrder co JOIN [dbo].[Invoice] i ON i.InvoiceID = co.InvoiceID
+						  JOIN [dbo].[Transaction] t ON t.TransactionID = co.TransactionID
+						  WHERE @Invoiceid=i.InvoiceID
+
+END;
+go
+ --
+CREATE TRIGGER ComputeInventorycosts
+ON [dbo].[Inventory]
+AFTER INSERT, UPDATE
+AS 
+BEGIN
+DECLARE @Itemno INT
+SET @Itemno= ISNULL((SELECT [ItemNo] FROM inserted), (SELECT [ItemNo] FROM deleted))
+UPDATE [Inventory]
+SET [Inventory Costs]= 0.01*QuantityInStock
+WHERE @Itemno=[ItemNo]
+END;
+GO
+-- CALCULATED COLUMN BASED ON FUNCTION
+CREATE FUNCTION ROUND_TOTALAMOUNT(@orderID INT)
+RETURNS MONEY
+AS
+   BEGIN
+      DECLARE @total MONEY =
+         (SELECT ROUND(SUM(TotalAmount),-2)
+          FROM Invoice
+          WHERE InvoiceID =@orderID);
+      SET @total = ISNULL(@total, 0);
+      RETURN @total;
+END
+GO
+-- Add a computed column to the invoice table
+
+ALTER TABLE [Invoice]
+ADD TotalPurchase AS (dbo.ROUND_TOTALAMOUNT([InvoiceID]));
+GO
+
+SELECT TOP 10 *
+FROM [Invoice]
+WHERE TotalPurchase > 0
+ORDER BY TotalPurchase DESC;
+GO
+--
+ALTER TABLE [Invoice] DROP COLUMN TotalPurchase;
+GO
+
+DROP FUNCTION dbo.ROUND_TOTALAMOUNT;
+GO
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- CREATE VEIWS 
 CREATE VIEW CustomerInfo
 WITH ENCRYPTION, SCHEMABINDING
@@ -949,7 +1004,7 @@ GO
 CREATE VIEW OrderDetails
 AS
 SELECT CONCAT(FirstName, ' ', LastName) AS CustomerName, 
-co.OrderID, o.OrderDate, co.InvoiceID, InvoiceDate, TotalAmount, SalesTax, Discount, OrderStatus, TransactionStatus, TransactionAmount
+co.OrderID, o.OrderDate, co.InvoiceID, t.TransactionID ,InvoiceDate, TotalAmount, SalesTax, Discount, OrderStatus, TransactionStatus, TransactionAmount
 FROM  [dbo].[CustomerOrder] co JOIN [dbo].[Order] o ON co.OrderID = o.OrderID
 							   JOIN [dbo].[Transaction] t ON co.TransactionID = t.TransactionID
 							   JOIN [dbo].[Invoice] i ON co.InvoiceID = i.InvoiceID 
@@ -996,7 +1051,7 @@ GO
 CREATE VIEW CompleteStatus
 AS
 SELECT CONCAT(FirstName, ' ', LastName) AS CustomerName, 
-co.OrderID, o.OrderDate, co.InvoiceID, s.ShippingLabelNo, t.TransactionID, OrderStatus, TransactionStatus, TransactionAmount, ShippingStatus
+co.OrderID, o.OrderDate, co.InvoiceID, s.ShippingLabelNo,t.TransactionID, OrderStatus, TransactionStatus, TransactionAmount, ShippingStatus
 FROM  [dbo].[CustomerOrder] co JOIN [dbo].[Order] o ON co.OrderID = o.OrderID
 							   JOIN [dbo].[Transaction] t ON co.TransactionID = t.TransactionID
 							   JOIN [dbo].[Invoice] i ON co.InvoiceID = i.InvoiceID 
@@ -1011,12 +1066,14 @@ set [TransactionStatus] = 'Cancelled' where [TransactionID] = 101024;
 
 SELECT * from CompleteStatus where [TransactionID] = 101024;
  go
+ /*Transaction Status is updated*/
 --
  UPdate [Transaction]
 set [TransactionStatus] = 'Approved' where [TransactionID] = 101022;
 
 SELECT * from CompleteStatus where [TransactionID] = 101022 ;
 go
+/*Transaction Status is updated*/
 --
 UPDATE dbo.Invoice
  SET TotalAmount = 1510.23
@@ -1024,18 +1081,29 @@ UPDATE dbo.Invoice
 go
  SELECT * FROM dbo.Invoice
  go
+ /* Sales Tax is Updated*/
 --
 UPDATE [Inventory]
 SET [QuantityInStock] = 4000 WHERE [ItemNo]= 8081;
 SELECT * FROM [Inventory];
 GO
+/*InventoryCosts is Updated*/
+--
+UPDATE [Invoice]
+SET [TotalAmount]=800.00,[SalesTax]= 120,[Discount]=20
+WHERE [InvoiceID]=7073;
+
+SELECT * from OrderDetails where [InvoiceID] = 7073;
+/*Transaction Amount is updated*/
 ----------------------------------------------------------------------------------------------------------------------------------------------------------
 
--- Test Computed Columns based on Functions
+-- Test Functions
 SELECT dbo.AVGMonthlyDiscount (2020, 06) AS AVGDiscount;
 go
+--
 SELECT dbo.MonthlySalesTax (2020, 05) AS TotalSalesTax;
 go
+--
 SELECT dbo.ParticularMonthYearSales (2020, 01) AS TotalSales;
 go
 -------------------------------------------------------------------------------------------------------------------------------
@@ -1062,8 +1130,10 @@ GO
 --
 SELECT * FROM OrderDetails
 GO
---
+-----------------------------------------------------------------------------------------------------------------------------------------------
 --Clean-Up
 USE Jacob_Nikhil_TEST
 DROP DATABASE [Wholesale Database Management System];
 go
+--
+
