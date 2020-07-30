@@ -1,5 +1,7 @@
+USE Jacob_Nikhil_TEST
+DROP DATABASE [Wholesale Database Management System];
+go
 -------------------------------------------------------------------------------------------------------
---CREATE DATABASE
 --CREATE DATABASE
 Create DATABASE [Wholesale Database Management System];
 go
@@ -58,7 +60,8 @@ CREATE TABLE [Invoice] (
   [CouponCode] VARCHAR(30)  
   FOREIGN KEY ([CouponCode])
         REFERENCES [Coupon]([CouponCode])
-        ON update CASCADE
+        ON update CASCADE,
+		CHECK ([Discount] <=100.00)
   );
 
 CREATE INDEX [Coupon_FK] ON  [Invoice] ([CouponCode]);
@@ -217,7 +220,8 @@ CREATE TABLE [Price] (
   [Discount] DECIMAL(4,2) ,
   FOREIGN KEY ([ItemNo])
         REFERENCES [Item]([ItemNo])
-        ON update CASCADE ON Delete CASCADE
+        ON update CASCADE ON Delete CASCADE,
+		CHECK ([Discount] <=100.00)
   );
 
 CREATE INDEX [FK_ITEM] ON  [Price] ([ItemNo]);
@@ -292,7 +296,8 @@ CREATE TABLE [OrderItem] (
   [OrderID] INT NOT NULL,
   [ItemNo] INT NOT NULL,
   [Quantity] INT NOT NULL,
-  CONSTRAINT PK_OI PRIMARY KEY([OrderID],[ItemNo])
+  CONSTRAINT PK_OI PRIMARY KEY([OrderID],[ItemNo]),
+  CHECK ([Quantity] >=50)
   );
   
 ALTER TABLE [OrderItem]
@@ -408,10 +413,7 @@ insert into Address ([Address ID], [AddressLine 1], [AddressLine 2], [City], [St
 insert into Address ([Address ID], [AddressLine 1], [AddressLine 2], [City], [State], [Country], [ZipCode]) values (1107, '280', 'Tony', 'Memphis', 'Tennessee', 'United States', '38136');
 insert into Address ([Address ID], [AddressLine 1], [AddressLine 2], [City], [State], [Country], [ZipCode]) values (1108, '237', 'Bluestem', 'Washington', 'District of Columbia', 'United States', '20022');
 insert into Address ([Address ID], [AddressLine 1], [AddressLine 2], [City], [State], [Country], [ZipCode]) values (1109, '8836', 'Clarendon', 'Washington', 'District of Columbia', 'United States', '20414');
-
-
-
-
+--
 select * from Address
 
 insert into [Employee] ([EmployeeID], firstname, lastname, [TelephoneNumber], [Email], [Address ID]) values (2021, 'Forster', 'Gozzard', '1434702754', 'forster.gozzard@tuttocitta.it', 1027);
@@ -434,7 +436,7 @@ insert into [Employee] ([EmployeeID], firstname, lastname, [TelephoneNumber], [E
 insert into [Employee] ([EmployeeID], firstname, lastname, [TelephoneNumber], [Email], [Address ID]) values (2038, 'Essie', 'Gullivan', '3172949708', 'essie.gullivan@theglobeandmail.com', 1012);
 insert into [Employee] ([EmployeeID], firstname, lastname, [TelephoneNumber], [Email], [Address ID]) values (2039, 'Colby', 'Salan', '1086538582', 'colby.salan@desdev.cn', 1022);
 insert into [Employee] ([EmployeeID], firstname, lastname, [TelephoneNumber], [Email], [Address ID]) values (2040, 'Henri', 'Hutley', '6392104211', 'henri.hutley@slashdot.org', 1023);
-
+--
 select * from Employee;
 
 insert into [Customer] ([CustomerID], firstname, lastname, [TelephoneNumber], [EmailID], [Address ID]) values (3031, 'Sharleen', 'Grzegorzewski', '4789423105', 'sharleen.grzegorzewski@uol.com.br', 1037);
@@ -457,8 +459,7 @@ insert into [Customer] ([CustomerID], firstname, lastname, [TelephoneNumber], [E
 insert into [Customer] ([CustomerID], firstname, lastname, [TelephoneNumber], [EmailID], [Address ID]) values (3048, 'Sid', 'Farfolomeev', '3105638189', 'sid.farfolomeev@soup.io', 1031);
 insert into [Customer] ([CustomerID], firstname, lastname, [TelephoneNumber], [EmailID], [Address ID]) values (3049, 'Pat', 'Garz', '6589068101', 'pat.garz@amazon.de', 1034);
 insert into [Customer] ([CustomerID], firstname, lastname, [TelephoneNumber], [EmailID], [Address ID]) values (3050, 'Nick', 'Dyott', '5668216237', 'nick.dyott@behance.net', 1033);
-
-
+--
 select * from Customer;
 
 insert into [Distributor] ([DistributorID], distributorname, [TelephoneNumber], [EmailID], [Address ID]) values (4041, 'healthwealth', '4063547059', 'healthwealth@ox.ac.uk', 1063);
@@ -481,7 +482,7 @@ insert into [Distributor] ([DistributorID], distributorname, [TelephoneNumber], 
 insert into [Distributor] ([DistributorID], distributorname, [TelephoneNumber], [EmailID], [Address ID]) values (4058, 'bookbox', '4483435942', 'bookbox@digg.com', 1070);
 insert into [Distributor] ([DistributorID], distributorname, [TelephoneNumber], [EmailID], [Address ID]) values (4059, 'petpots', '2276840419', 'petpots@stanford.edu', 1057);
 insert into [Distributor] ([DistributorID], distributorname, [TelephoneNumber], [EmailID], [Address ID]) values (4060, 'petfriends', '4556155839', 'petfriends@sfgate.com', 1053);
-
+--
 select * from Distributor;
 
 insert into [Transportation Vendor] ([VendorID], vendorname, [EmailID], [Address ID]) values (5051, 'Edgewire', 'edgewire@ustream.tv', 1076);
@@ -504,7 +505,7 @@ insert into [Transportation Vendor] ([VendorID], vendorname, [EmailID], [Address
 insert into [Transportation Vendor] ([VendorID], vendorname, [EmailID], [Address ID]) values (5068, 'Yacero', 'yacero@cbc.ca', 1088);
 insert into [Transportation Vendor] ([VendorID], vendorname, [EmailID], [Address ID]) values (5069, 'Babbleset', 'babbleset@jugem.jp', 1087);
 insert into [Transportation Vendor] ([VendorID], vendorname, [EmailID], [Address ID]) values (5070, 'Midel', 'midel@1688.com', 1078);
-
+--
 select * from [Transportation Vendor];
 
 insert into [Category] ([CategoryID], [CategoryName]) values (6061, 'books');
@@ -518,7 +519,7 @@ insert into [Category] ([CategoryID], [CategoryName]) values (6068, 'pet supply'
 insert into [Category] ([CategoryID], [CategoryName]) values (6069, 'toys');
 insert into [Category] ([CategoryID], [CategoryName]) values (6070, 'furniture');
 select * from Category;
-
+--
 insert into [Coupon] ([CouponCode], [DiscountPercentage], [DateValidTill]) values ('774255319-8', 70, '4/1/2022');
 insert into [Coupon] ([CouponCode], [DiscountPercentage], [DateValidTill]) values ('533990875-5', 30, '2/24/2021');
 insert into [Coupon] ([CouponCode], [DiscountPercentage], [DateValidTill]) values ('008236796-5', 50, '11/9/2023');
@@ -539,9 +540,7 @@ insert into [Coupon] ([CouponCode], [DiscountPercentage], [DateValidTill]) value
 insert into [Coupon] ([CouponCode], [DiscountPercentage], [DateValidTill]) values ('649765558-1', 70, '2/27/2021');
 insert into [Coupon] ([CouponCode], [DiscountPercentage], [DateValidTill]) values ('661972695-X', 50, '4/16/2023');
 insert into [Coupon] ([CouponCode], [DiscountPercentage], [DateValidTill]) values ('793225184-2', 50, '9/26/2021');
-
-
-
+--
 select * from [Coupon] ;
 
 insert into [Invoice] ([InvoiceID], [InvoiceDate], totalamount, [SalesTax], [Discount], [CouponCode]) values (7071, '8/27/2019', 2829, 424.35, 10, '774255319-8');
@@ -566,7 +565,7 @@ insert into [Invoice] ([InvoiceID], [InvoiceDate], totalamount, [SalesTax], [Dis
 insert into [Invoice] ([InvoiceID], [InvoiceDate], totalamount, [SalesTax], [Discount], [CouponCode]) values (7090, '4/10/2020', 3452, 517.8, 20, '793225184-2');
 
 select * from [Category];
-
+--
 insert into [Item] ([ItemNo], [ItemName], [CustomerReviews], [CategoryID]) values (8081, 'famous trials', 5, 6061);
 insert into [Item] ([ItemNo], [ItemName], [CustomerReviews], [CategoryID]) values (8082, 'kite runner', 3, 6061);
 insert into [Item] ([ItemNo], [ItemName], [CustomerReviews], [CategoryID]) values (8083, 'television', 1, 6062);
@@ -587,7 +586,7 @@ insert into [Item] ([ItemNo], [ItemName], [CustomerReviews], [CategoryID]) value
 insert into [Item] ([ItemNo], [ItemName], [CustomerReviews], [CategoryID]) values (8098, 'teddy bear', 2, 6069);
 insert into [Item] ([ItemNo], [ItemName], [CustomerReviews], [CategoryID]) values (8099, 'table', 1, 6070);
 insert into [Item] ([ItemNo], [ItemName], [CustomerReviews], [CategoryID]) values (8100, 'chair', 1, 6070);
-
+--
 select * from Item;
 insert into [Refund] ([RefundOrderID], [RefundStatus], [RefundAmount]) values (9091, 'Approved', 3724.70);
 insert into [Refund] ([RefundOrderID], [RefundStatus], [RefundAmount]) values (9092, 'In process', 8751.67);
@@ -609,7 +608,7 @@ insert into [Refund] ([RefundOrderID], [RefundStatus], [RefundAmount]) values (9
 insert into [Refund] ([RefundOrderID], [RefundStatus], [RefundAmount]) values (9108, 'Approved', 4413.68);
 insert into [Refund] ([RefundOrderID], [RefundStatus], [RefundAmount]) values (9109, 'Cancelled', 2241.23);
 insert into [Refund] ([RefundOrderID], [RefundStatus], [RefundAmount]) values (9110, 'Approved', 8583.18);
-
+--
 select * from Refund;
 
 insert into [Returns] ([ReturnRequestID], [ReturnRequestDate], [ReturnRequestTime], [RefundOrderID]) values (202020, '4/22/2020', '8:31 AM', 9091);
@@ -632,76 +631,76 @@ insert into [Returns] ([ReturnRequestID], [ReturnRequestDate], [ReturnRequestTim
 insert into [Returns] ([ReturnRequestID], [ReturnRequestDate], [ReturnRequestTime], [RefundOrderID]) values (202037, '8/19/2019', '6:47 AM', 9108);
 insert into [Returns] ([ReturnRequestID], [ReturnRequestDate], [ReturnRequestTime], [RefundOrderID]) values (202038, '4/5/2020', '5:55 PM', 9109);
 insert into [Returns] ([ReturnRequestID], [ReturnRequestDate], [ReturnRequestTime], [RefundOrderID]) values (202039, '5/4/2020', '1:08 AM', 9110);
-
+--
 select * from Returns;
 
-insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101010, 'Credit', '5/24/2020', '4:08 PM', 4993.51, 'Initiated');
-insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101011, 'Cash', '3/28/2020', '7:34 AM', 6648.04, 'Approved');
-insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101012, 'Cash', '2/15/2020', '7:40 PM', 5372.37, 'Cancelled');
-insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101013, 'Debit', '8/13/2019', '12:00 AM', 7991.15, 'Cancelled');
+insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101010, 'Credit', '5/24/2020', '4:08 PM', 4993.51, 'Approved');
+insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101011, 'Cash', '3/28/2020', '7:34 AM', 6648.04, 'Initiated');
+insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101012, 'Cash', '2/15/2020', '7:40 PM', 5372.37, 'Initiated');
+insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101013, 'Debit', '8/13/2019', '12:00 AM', 7991.15, 'Initiated');
 insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101014, 'Debit', '8/20/2019', '6:27 PM', 4551.65, 'Initiated');
 insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101015, 'PayPal', '3/7/2020', '10:00 AM', 2842.51, 'Initiated');
-insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101016, 'Debit', '10/10/2019', '10:10 PM', 6814.03, 'Cancelled');
-insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101017, 'Credit', '5/15/2020', '5:48 PM', 5315.82, 'Cancelled');
-insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101018, 'Debit', '2/27/2020', '5:28 AM', 102.46, 'Approved');
+insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101016, 'Debit', '10/10/2019', '10:10 PM', 6814.03, 'Initiated');
+insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101017, 'Credit', '5/15/2020', '5:48 PM', 5315.82, 'Initiated');
+insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101018, 'Debit', '2/27/2020', '5:28 AM', 102.46, 'Initiated');
 insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101019, 'Credit', '4/21/2020', '8:18 AM', 2183.37, 'Initiated');
 insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101020, 'PayPal', '9/24/2019', '9:03 AM', 5715.21, 'Initiated');
-insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101021, 'Debit', '4/17/2020', '3:18 AM', 2128.62, 'Cancelled');
-insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101022, 'Cash', '2/13/2020', '6:11 PM', 8794.34, 'Cancelled');
+insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101021, 'Debit', '4/17/2020', '3:18 AM', 2128.62, 'Initiated');
+insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101022, 'Cash', '2/13/2020', '6:11 PM', 8794.34, 'Initiated');
 insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101023, 'Debit', '5/16/2020', '11:19 AM', 9917.24, 'Initiated');
 insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101024, 'Cash', '8/28/2019', '4:27 AM', 8917.73, 'Initiated');
-insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101025, 'Cash', '1/30/2020', '2:52 AM', 4179.29, 'Approved');
-insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101026, 'Debit', '8/7/2019', '5:41 PM', 1712.13, 'Approved');
-insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101027, 'PayPal', '8/15/2019', '10:40 PM', 8334.48, 'Approved');
+insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101025, 'Cash', '1/30/2020', '2:52 AM', 4179.29, 'Initiated');
+insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101026, 'Debit', '8/7/2019', '5:41 PM', 1712.13, 'Initiated');
+insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101027, 'PayPal', '8/15/2019', '10:40 PM', 8334.48, 'Initiated');
 insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101028, 'Debit', '1/9/2020', '11:41 AM', 8458.03, 'Initiated');
 insert into [Transaction] ([TransactionID], [TransactionMode], [TransactionDate], [TransactionTime], [TransactionAmount], [TransactionStatus]) values (101029, 'Credit', '3/24/2020', '11:52 PM', 5248.42, 'Initiated');
-
+--
 select * from [Transaction];
 
 insert into [Order] ([OrderID], [OrderDate], [OrderTime], [OrderStatus], [EmployeeID]) values (8081, '5/12/2020', '6:33 PM', 'Completed', 2021);
-insert into [Order] ([OrderID], [OrderDate], [OrderTime], [OrderStatus], [EmployeeID]) values (8082, '8/18/2019', '11:41 PM', 'Completed', 2022);
+insert into [Order] ([OrderID], [OrderDate], [OrderTime], [OrderStatus], [EmployeeID]) values (8082, '8/18/2019', '11:41 PM', 'Pending', 2022);
 insert into [Order] ([OrderID], [OrderDate], [OrderTime], [OrderStatus], [EmployeeID]) values (8083, '3/29/2020', '8:56 AM', 'Pending', 2023);
 insert into [Order] ([OrderID], [OrderDate], [OrderTime], [OrderStatus], [EmployeeID]) values (8084, '3/30/2020', '5:12 PM', 'Pending', 2024);
-insert into [Order] ([OrderID], [OrderDate], [OrderTime], [OrderStatus], [EmployeeID]) values (8085, '11/19/2019', '12:46 AM', 'Completed', 2025);
-insert into [Order] ([OrderID], [OrderDate], [OrderTime], [OrderStatus], [EmployeeID]) values (8086, '5/19/2020', '10:00 AM', 'Completed', 2026);
+insert into [Order] ([OrderID], [OrderDate], [OrderTime], [OrderStatus], [EmployeeID]) values (8085, '11/19/2019', '12:46 AM', 'Pending', 2025);
+insert into [Order] ([OrderID], [OrderDate], [OrderTime], [OrderStatus], [EmployeeID]) values (8086, '5/19/2020', '10:00 AM', 'Pending', 2026);
 insert into [Order] ([OrderID], [OrderDate], [OrderTime], [OrderStatus], [EmployeeID]) values (8087, '1/4/2020', '7:01 AM', 'Pending', 2027);
-insert into [Order] ([OrderID], [OrderDate], [OrderTime], [OrderStatus], [EmployeeID]) values (8088, '7/7/2020', '8:34 AM', 'Completed', 2028);
+insert into [Order] ([OrderID], [OrderDate], [OrderTime], [OrderStatus], [EmployeeID]) values (8088, '7/7/2020', '8:34 AM', 'Pending', 2028);
 insert into [Order] ([OrderID], [OrderDate], [OrderTime], [OrderStatus], [EmployeeID]) values (8089, '10/30/2019', '2:34 AM', 'Pending', 2029);
-insert into [Order] ([OrderID], [OrderDate], [OrderTime], [OrderStatus], [EmployeeID]) values (8090, '9/25/2019', '6:17 AM', 'Completed', 2030);
+insert into [Order] ([OrderID], [OrderDate], [OrderTime], [OrderStatus], [EmployeeID]) values (8090, '9/25/2019', '6:17 AM', 'Pending', 2030);
 insert into [Order] ([OrderID], [OrderDate], [OrderTime], [OrderStatus], [EmployeeID]) values (8091, '7/23/2020', '3:27 PM', 'Pending', 2031);
-insert into [Order] ([OrderID], [OrderDate], [OrderTime], [OrderStatus], [EmployeeID]) values (8092, '3/31/2020', '3:41 AM', 'Completed', 2032);
+insert into [Order] ([OrderID], [OrderDate], [OrderTime], [OrderStatus], [EmployeeID]) values (8092, '3/31/2020', '3:41 AM', 'Pending', 2032);
 insert into [Order] ([OrderID], [OrderDate], [OrderTime], [OrderStatus], [EmployeeID]) values (8093, '8/20/2019', '7:16 AM', 'Pending', 2033);
-insert into [Order] ([OrderID], [OrderDate], [OrderTime], [OrderStatus], [EmployeeID]) values (8094, '10/30/2019', '5:44 AM', 'Completed', 2034);
+insert into [Order] ([OrderID], [OrderDate], [OrderTime], [OrderStatus], [EmployeeID]) values (8094, '10/30/2019', '5:44 AM', 'Pending', 2034);
 insert into [Order] ([OrderID], [OrderDate], [OrderTime], [OrderStatus], [EmployeeID]) values (8095, '1/31/2020', '11:15 AM', 'Pending', 2035);
 insert into [Order] ([OrderID], [OrderDate], [OrderTime], [OrderStatus], [EmployeeID]) values (8096, '3/2/2020', '10:23 AM', 'Pending', 2036);
 insert into [Order] ([OrderID], [OrderDate], [OrderTime], [OrderStatus], [EmployeeID]) values (8097, '8/20/2019', '9:59 PM', 'Pending', 2037);
-insert into [Order] ([OrderID], [OrderDate], [OrderTime], [OrderStatus], [EmployeeID]) values (8098, '9/30/2019', '5:59 AM', 'Completed', 2038);
+insert into [Order] ([OrderID], [OrderDate], [OrderTime], [OrderStatus], [EmployeeID]) values (8098, '9/30/2019', '5:59 AM', 'Pending', 2038);
 insert into [Order] ([OrderID], [OrderDate], [OrderTime], [OrderStatus], [EmployeeID]) values (8099, '4/8/2020', '11:33 AM', 'Pending', 2039);
-insert into [Order] ([OrderID], [OrderDate], [OrderTime], [OrderStatus], [EmployeeID]) values (8100, '1/1/2020', '6:23 AM', 'Completed', 2040);
-
+insert into [Order] ([OrderID], [OrderDate], [OrderTime], [OrderStatus], [EmployeeID]) values (8100, '1/1/2020', '6:23 AM', 'Pending', 2040);
+--
 select * from [Order];
 
-insert into [Shipping] ([ShippingLabelNo], [Origin], [Destination], [ShippingStatus], [ShippingCost], [VendorID]) values (303030, 'Sosnytsya', 'Água Preta', 'Transit', 63.13, 5051);
-insert into [Shipping] ([ShippingLabelNo], [Origin], [Destination], [ShippingStatus], [ShippingCost], [VendorID]) values (303031, 'Lianhe', 'Jargalant', 'Initiated', 75.26, 5052);
-insert into [Shipping] ([ShippingLabelNo], [Origin], [Destination], [ShippingStatus], [ShippingCost], [VendorID]) values (303032, 'Taza', 'Ratenggoji', 'Transit', 33.99, 5053);
-insert into [Shipping] ([ShippingLabelNo], [Origin], [Destination], [ShippingStatus], [ShippingCost], [VendorID]) values (303033, 'Binuangeun', 'Shuishiying', 'Transit', 50.63, 5054);
-insert into [Shipping] ([ShippingLabelNo], [Origin], [Destination], [ShippingStatus], [ShippingCost], [VendorID]) values (303034, 'Wu’an', 'Ždánice', 'Transit', 93.85, 5055);
-insert into [Shipping] ([ShippingLabelNo], [Origin], [Destination], [ShippingStatus], [ShippingCost], [VendorID]) values (303035, 'Las Terrenas', 'Vayk’', 'Initiated', 57.43, 5056);
-insert into [Shipping] ([ShippingLabelNo], [Origin], [Destination], [ShippingStatus], [ShippingCost], [VendorID]) values (303036, 'Xom Tan Long', 'Tân Hiệp', 'Delivered', 20.88, 5057);
-insert into [Shipping] ([ShippingLabelNo], [Origin], [Destination], [ShippingStatus], [ShippingCost], [VendorID]) values (303037, 'Sieradza', 'Liboro', 'Transit', 15.59, 5058);
-insert into [Shipping] ([ShippingLabelNo], [Origin], [Destination], [ShippingStatus], [ShippingCost], [VendorID]) values (303038, 'Sop Pong', 'Umm Ruwaba', 'Initiated', 77.98, 5059);
-insert into [Shipping] ([ShippingLabelNo], [Origin], [Destination], [ShippingStatus], [ShippingCost], [VendorID]) values (303039, 'Kedungasem', 'Sepekov', 'Delivered', 72.80, 5060);
-insert into [Shipping] ([ShippingLabelNo], [Origin], [Destination], [ShippingStatus], [ShippingCost], [VendorID]) values (303040, 'Kariya', 'El Ksour', 'Transit', 33.42, 5061);
-insert into [Shipping] ([ShippingLabelNo], [Origin], [Destination], [ShippingStatus], [ShippingCost], [VendorID]) values (303041, 'Phoenix', 'Nglengkong', 'Initiated', 14.04, 5062);
-insert into [Shipping] ([ShippingLabelNo], [Origin], [Destination], [ShippingStatus], [ShippingCost], [VendorID]) values (303042, 'Tromsø', 'Krajan Curahcotok', 'Transit', 26.95, 5063);
-insert into [Shipping] ([ShippingLabelNo], [Origin], [Destination], [ShippingStatus], [ShippingCost], [VendorID]) values (303043, 'Nagoya-shi', 'Linshi', 'Delivered', 65.92, 5064);
-insert into [Shipping] ([ShippingLabelNo], [Origin], [Destination], [ShippingStatus], [ShippingCost], [VendorID]) values (303044, 'Xiluo', 'La Paz', 'Transit', 62.89, 5065);
-insert into [Shipping] ([ShippingLabelNo], [Origin], [Destination], [ShippingStatus], [ShippingCost], [VendorID]) values (303045, 'Cascavel', 'Salinas', 'Transit', 68.36, 5066);
-insert into [Shipping] ([ShippingLabelNo], [Origin], [Destination], [ShippingStatus], [ShippingCost], [VendorID]) values (303046, 'Arroyo Naranjo', 'Kinsale', 'Delivered', 77.59, 5067);
-insert into [Shipping] ([ShippingLabelNo], [Origin], [Destination], [ShippingStatus], [ShippingCost], [VendorID]) values (303047, 'Sittwe', 'Kota Bharu', 'Delivered', 13.16, 5068);
-insert into [Shipping] ([ShippingLabelNo], [Origin], [Destination], [ShippingStatus], [ShippingCost], [VendorID]) values (303048, 'Saltpond', 'San Teodoro', 'Delivered', 28.08, 5069);
-insert into [Shipping] ([ShippingLabelNo], [Origin], [Destination], [ShippingStatus], [ShippingCost], [VendorID]) values (303049, 'El Benque', 'Bystřany', 'Initiated', 92.23, 5070);
-
+insert into [Shipping] ([ShippingLabelNo], [Origin], [Destination], [ShippingStatus], [ShippingCost], [VendorID]) values (303030, 'Sosnytsya', 'Água Preta', 'Delivered', 63.13, 5051);
+insert into [Shipping] ([ShippingLabelNo], [Origin], [Destination], [ShippingStatus], [ShippingCost], [VendorID]) values (303031, 'Lianhe', 'Jargalant', 'Pending', 75.26, 5052);
+insert into [Shipping] ([ShippingLabelNo], [Origin], [Destination], [ShippingStatus], [ShippingCost], [VendorID]) values (303032, 'Taza', 'Ratenggoji', 'Pending', 33.99, 5053);
+insert into [Shipping] ([ShippingLabelNo], [Origin], [Destination], [ShippingStatus], [ShippingCost], [VendorID]) values (303033, 'Binuangeun', 'Shuishiying', 'Pending', 50.63, 5054);
+insert into [Shipping] ([ShippingLabelNo], [Origin], [Destination], [ShippingStatus], [ShippingCost], [VendorID]) values (303034, 'Wu’an', 'Ždánice', 'Pending', 93.85, 5055);
+insert into [Shipping] ([ShippingLabelNo], [Origin], [Destination], [ShippingStatus], [ShippingCost], [VendorID]) values (303035, 'Las Terrenas', 'Vayk’', 'Pending', 57.43, 5056);
+insert into [Shipping] ([ShippingLabelNo], [Origin], [Destination], [ShippingStatus], [ShippingCost], [VendorID]) values (303036, 'Xom Tan Long', 'Tân Hiệp', 'Pending', 20.88, 5057);
+insert into [Shipping] ([ShippingLabelNo], [Origin], [Destination], [ShippingStatus], [ShippingCost], [VendorID]) values (303037, 'Sieradza', 'Liboro', 'Pending', 15.59, 5058);
+insert into [Shipping] ([ShippingLabelNo], [Origin], [Destination], [ShippingStatus], [ShippingCost], [VendorID]) values (303038, 'Sop Pong', 'Umm Ruwaba', 'Pending', 77.98, 5059);
+insert into [Shipping] ([ShippingLabelNo], [Origin], [Destination], [ShippingStatus], [ShippingCost], [VendorID]) values (303039, 'Kedungasem', 'Sepekov', 'Pending', 72.80, 5060);
+insert into [Shipping] ([ShippingLabelNo], [Origin], [Destination], [ShippingStatus], [ShippingCost], [VendorID]) values (303040, 'Kariya', 'El Ksour', 'Pending', 33.42, 5061);
+insert into [Shipping] ([ShippingLabelNo], [Origin], [Destination], [ShippingStatus], [ShippingCost], [VendorID]) values (303041, 'Phoenix', 'Nglengkong', 'Pending', 14.04, 5062);
+insert into [Shipping] ([ShippingLabelNo], [Origin], [Destination], [ShippingStatus], [ShippingCost], [VendorID]) values (303042, 'Tromsø', 'Krajan Curahcotok', 'Pending', 26.95, 5063);
+insert into [Shipping] ([ShippingLabelNo], [Origin], [Destination], [ShippingStatus], [ShippingCost], [VendorID]) values (303043, 'Nagoya-shi', 'Linshi', 'Pending', 65.92, 5064);
+insert into [Shipping] ([ShippingLabelNo], [Origin], [Destination], [ShippingStatus], [ShippingCost], [VendorID]) values (303044, 'Xiluo', 'La Paz', 'Pending', 62.89, 5065);
+insert into [Shipping] ([ShippingLabelNo], [Origin], [Destination], [ShippingStatus], [ShippingCost], [VendorID]) values (303045, 'Cascavel', 'Salinas', 'Pending', 68.36, 5066);
+insert into [Shipping] ([ShippingLabelNo], [Origin], [Destination], [ShippingStatus], [ShippingCost], [VendorID]) values (303046, 'Arroyo Naranjo', 'Kinsale', 'Pending', 77.59, 5067);
+insert into [Shipping] ([ShippingLabelNo], [Origin], [Destination], [ShippingStatus], [ShippingCost], [VendorID]) values (303047, 'Sittwe', 'Kota Bharu', 'Pending', 13.16, 5068);
+insert into [Shipping] ([ShippingLabelNo], [Origin], [Destination], [ShippingStatus], [ShippingCost], [VendorID]) values (303048, 'Saltpond', 'San Teodoro', 'Pending', 28.08, 5069);
+insert into [Shipping] ([ShippingLabelNo], [Origin], [Destination], [ShippingStatus], [ShippingCost], [VendorID]) values (303049, 'El Benque', 'Bystřany', 'NA', 92.23, 5070);
+--
 select * from Shipping ;
 
 insert into [Price] ([ItemNo], [RetailPrice], [WholesalePrice], [Discount]) values (8081, 250, 220, 5);
@@ -726,7 +725,7 @@ insert into [Price] ([ItemNo], [RetailPrice], [WholesalePrice], [Discount]) valu
 insert into [Price] ([ItemNo], [RetailPrice], [WholesalePrice], [Discount]) values (8100, 2000, 1935, 10);
 
 select * from Price;
-
+--
 insert into [OrderItem] ([OrderID], [ItemNo], [Quantity]) values (8081, 8081, 2126);
 insert into [OrderItem] ([OrderID], [ItemNo], [Quantity]) values (8082, 8082, 2809);
 insert into [OrderItem] ([OrderID], [ItemNo], [Quantity]) values (8083, 8083, 4927);
@@ -747,7 +746,7 @@ insert into [OrderItem] ([OrderID], [ItemNo], [Quantity]) values (8097, 8097, 48
 insert into [OrderItem] ([OrderID], [ItemNo], [Quantity]) values (8098, 8098, 1245);
 insert into [OrderItem] ([OrderID], [ItemNo], [Quantity]) values (8099, 8099, 4974);
 insert into [OrderItem] ([OrderID], [ItemNo], [Quantity]) values (8100, 8100, 3431);
-
+--
 select * from OrderItem;
 
 insert into [CustomerOrder] ([CustomerID], [OrderID], [InvoiceID], [TransactionID], [ShippingLabelNo]) values (3031, 8081, 7071, 101010, 303030);
@@ -770,7 +769,7 @@ insert into [CustomerOrder] ([CustomerID], [OrderID], [InvoiceID], [TransactionI
 insert into [CustomerOrder] ([CustomerID], [OrderID], [InvoiceID], [TransactionID], [ShippingLabelNo]) values (3048, 8098, 7088, 101027, 303047);
 insert into [CustomerOrder] ([CustomerID], [OrderID], [InvoiceID], [TransactionID], [ShippingLabelNo]) values (3049, 8099, 7089, 101028, 303048);
 insert into [CustomerOrder] ([CustomerID], [OrderID], [InvoiceID], [TransactionID], [ShippingLabelNo]) values (3050, 8100, 7090, 101029, 303049);
-
+--
 select * from CustomerOrder;
 
 insert into [Inventory] ([ItemNo], quantityinstock, [Inventory Costs]) values (8081, 3513, 35.13);
@@ -793,9 +792,9 @@ insert into [Inventory] ([ItemNo], quantityinstock, [Inventory Costs]) values (8
 insert into [Inventory] ([ItemNo], quantityinstock, [Inventory Costs]) values (8098, 3239, 32.39);
 insert into [Inventory] ([ItemNo], quantityinstock, [Inventory Costs]) values (8099, 3893, 38.93);
 insert into [Inventory] ([ItemNo], quantityinstock, [Inventory Costs]) values (8100, 1478, 14.78);
-
+--
 select * from Inventory;
-
+--
 insert into [ItemDistributor] ([ItemNo], [DistributorID]) values (8081, 4041);
 insert into [ItemDistributor] ([ItemNo], [DistributorID]) values (8082, 4042);
 insert into [ItemDistributor] ([ItemNo], [DistributorID]) values (8083, 4043);
@@ -817,9 +816,9 @@ insert into [ItemDistributor] ([ItemNo], [DistributorID]) values (8098, 4058);
 insert into [ItemDistributor] ([ItemNo], [DistributorID]) values (8099, 4059);
 insert into [ItemDistributor] ([ItemNo], [DistributorID]) values (8100, 4060);
 
-
+--
 select * from ItemDistributor;
-
+--
 insert into [CustomerReturnsOrder] ([CustomerID], [OrderID], [InvoiceID], [ReturnRequestID]) values (3031, 8081, 7071, 202020);
 insert into [CustomerReturnsOrder] ([CustomerID], [OrderID], [InvoiceID], [ReturnRequestID]) values (3032, 8082, 7072, 202021);
 insert into [CustomerReturnsOrder] ([CustomerID], [OrderID], [InvoiceID], [ReturnRequestID]) values (3033, 8083, 7073, 202022);
@@ -840,12 +839,11 @@ insert into [CustomerReturnsOrder] ([CustomerID], [OrderID], [InvoiceID], [Retur
 insert into [CustomerReturnsOrder] ([CustomerID], [OrderID], [InvoiceID], [ReturnRequestID]) values (3048, 8098, 7088, 202037);
 insert into [CustomerReturnsOrder] ([CustomerID], [OrderID], [InvoiceID], [ReturnRequestID]) values (3049, 8099, 7089, 202038);
 insert into [CustomerReturnsOrder] ([CustomerID], [OrderID], [InvoiceID], [ReturnRequestID]) values (3050, 8100, 7090, 202039);
-
+--
 select * from CustomerReturnsOrder;
 GO
 -----------------------------------------------------------------------------------------------------------------
 -- CREATE VEIWS 
-
 CREATE VIEW CustomerInfo
 WITH ENCRYPTION, SCHEMABINDING
 AS
@@ -854,6 +852,7 @@ CONCAT([AddressLine 1],',',' ', [AddressLine 2],',',' ', City,',',' ', State,','
 FROM [dbo].[Customer] c JOIN [dbo].[Address] a ON c.[Address ID] = a.[Address ID]
 
 GO
+--
 CREATE VIEW OrderDetails
 AS
 SELECT CONCAT(FirstName, ' ', LastName) AS CustomerName, 
@@ -863,15 +862,19 @@ FROM  [dbo].[CustomerOrder] co JOIN [dbo].[Order] o ON co.OrderID = o.OrderID
 							   JOIN [dbo].[Invoice] i ON co.InvoiceID = i.InvoiceID 
 							   JOIN [dbo].[Customer] c ON c.CustomerID = co.CustomerID
 GO
+--
 SELECT * FROM OrderDetails
 GO
+--
 CREATE VIEW InvetoryDetails
 AS
 SELECT i.ItemNo, ItemName, QuantityInStock, [Inventory Costs]
 FROM [dbo].[Item] i JOIN [dbo].[Inventory] iv ON i.ItemNo = iv.ItemNo;
 GO
+--
 SELECT * FROM InvetoryDetails;
 GO
+--
 CREATE VIEW OrderDeliveryStatus
 AS
 SELECT CONCAT(FirstName, ' ', LastName) AS CustomerName, o.OrderID, o.OrderStatus, OrderDate, co.ShippingLabelNo, ShippingStatus
@@ -879,16 +882,20 @@ FROM [dbo].[CustomerOrder] co JOIN [dbo].[Order] o ON co.OrderID = o.OrderID
 							  JOIN [dbo].[Shipping] s ON co.ShippingLabelNo = s.ShippingLabelNo
 							  JOIN [dbo].[Customer] c ON c.CustomerID = co.CustomerID;
 GO
+--
 SELECT * FROM OrderDeliveryStatus;
 GO
+--
 CREATE VIEW DistributorItems
 AS 
 SELECT id.DistributorID, DistributorName, ItemName
 FROM Distributor d JOIN ItemDistributor id ON d.DistributorID = id.DistributorID
 				   JOIN Item i ON i.ItemNo = id.ItemNo;
 GO
+--
 SELECT * FROM DistributorItems;
 GO
+--
 CREATE VIEW CustomerRefunds
 AS
 SELECT CONCAT(FirstName, ' ', LastName) AS CustomerName, 
@@ -898,23 +905,158 @@ FROM CustomerReturnsOrder cro JOIN Customer c ON cro.CustomerID = c.CustomerID
 							  JOIN [dbo].[Returns] r ON r.ReturnRequestID = cro.ReturnRequestID
 							  JOIN Refund re ON r.RefundOrderID = re.RefundOrderID;
 GO
+--
 SELECT * FROM CustomerRefunds;
 GO
-
+--
 CREATE VIEW SalesItems
 AS
 SELECT OrderID, io.ItemNo, ItemName, Quantity AS OrderQty
 FROM OrderItem io JOIN Item i ON io.ItemNo = i.ItemNo;
 GO
+--
 SELECT * FROM SalesItems;
 GO
+--
 CREATE VIEW EmployeeCouponAccess
 WITH ENCRYPTION
 AS
 SELECT *
 FROM Coupon;
 GO
+--
 SELECT * FROM EmployeeCouponAccess;
 GO
+--
+CREATE VIEW CompleteStatus
+AS
+SELECT CONCAT(FirstName, ' ', LastName) AS CustomerName, 
+co.OrderID, o.OrderDate, co.InvoiceID, s.ShippingLabelNo, t.TransactionID, OrderStatus, TransactionStatus, TransactionAmount, ShippingStatus
+FROM  [dbo].[CustomerOrder] co JOIN [dbo].[Order] o ON co.OrderID = o.OrderID
+							   JOIN [dbo].[Transaction] t ON co.TransactionID = t.TransactionID
+							   JOIN [dbo].[Invoice] i ON co.InvoiceID = i.InvoiceID 
+							   JOIN [dbo].[Customer] c ON c.CustomerID = co.CustomerID
+							   JOIN [dbo].[Shipping] s ON co.ShippingLabelNo = s.ShippingLabelNo;
+go
+--
+SELECT * FROM CompleteStatus;
+GO
 --------------------------------------------------------------
+CREATE TRIGGER [dbo].transact
+   ON [dbo].[Transaction]
+   AFTER UPDATE
+AS BEGIN
+    SET NOCOUNT ON; 
 
+ IF (SELECT D.TransactionStatus  FROM [Transaction] O inner join inserted d on o.TransactionID = d.[TransactionID]                
+    WHERE D.[TransactionID] = d.[TransactionID]  )  = 'Approved'
+
+UPDATE [Order]
+    SET [OrderStatus] = 'Completed' FROM [Order] S 
+    INNER JOIN CustomerOrder I ON S.[OrderID] = I.[OrderID] 
+    INNER JOIN inserted D ON I.TransactionID = D.[TransactionID]    ;
+ELSE
+UPDATE [Order]
+    SET [OrderStatus] = 'Pending' FROM [Order] S 
+    INNER JOIN CustomerOrder I ON S.[OrderID] = I.[OrderID] 
+    INNER JOIN inserted D ON I.TransactionID = D.[TransactionID]   ;
+END
+go
+--
+CREATE Trigger ComputeSalesTax
+ON [dbo].[Invoice]
+AFTER INSERT, UPDATE
+AS 
+BEGIN
+ DECLARE @InvoiceID INT
+ SET @InvoiceID = ISNULL((SELECT InvoiceID FROM inserted), (SELECT InvoiceID FROM deleted))
+ UPDATE [dbo].[Invoice]
+ SET SalesTax = 0.15*TotalAmount
+ WHERE @InvoiceID = InvoiceID
+ END;
+ go
+ -- 
+CREATE TRIGGER ComputeInventorycosts
+ON [dbo].[Inventory]
+AFTER INSERT, UPDATE
+AS 
+BEGIN
+DECLARE @Itemno INT
+SET @Itemno= ISNULL((SELECT [ItemNo] FROM inserted), (SELECT [ItemNo] FROM deleted))
+UPDATE [Inventory]
+SET [Inventory Costs]= 0.01*QuantityInStock
+WHERE @Itemno=[ItemNo]
+END;
+GO
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+-- CHECK TRIGGER
+UPdate [Transaction]
+set [TransactionStatus] = 'Cancelled' where [TransactionID] = 101024;
+
+
+SELECT * from CompleteStatus where [TransactionID] = 101024;
+ go
+--
+ UPdate [Transaction]
+set [TransactionStatus] = 'Approved' where [TransactionID] = 101022;
+
+SELECT * from CompleteStatus where [TransactionID] = 101022 ;
+go
+--
+UPDATE dbo.Invoice
+ SET TotalAmount = 1510.23
+ WHERE InvoiceID = 7071
+go
+ SELECT * FROM dbo.Invoice
+ go
+--
+UPDATE [Inventory]
+SET [QuantityInStock] = 4000 WHERE [ItemNo]= 8081;
+SELECT * FROM [Inventory];
+GO
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+--FUNCTIONS
+CREATE FUNCTION ParticularMonthYearSales (@Year INT, @Month INT)
+	   RETURNS DEC (20, 2)
+AS
+BEGIN
+	DECLARE @TotalSale DEC (20, 2)
+	SELECT @TotalSale = ISNULL(SUM(TransactionAmount), 0)
+	FROM [Wholesale Database Management System].[dbo].[Transaction]
+	WHERE YEAR(TransactionDate) = @Year AND MONTH(TransactionDate) = @Month
+	RETURN @TotalSale
+END;
+go
+--
+CREATE FUNCTION MonthlySalesTax (@Year INT, @Month INT)
+		RETURNS DEC (20, 2)
+AS
+BEGIN
+	DECLARE @TotalSalesTax DEC (20, 2)
+	SELECT @TotalSalesTax = ISNULL(SUM(SalesTax), 0)
+	FROM [Wholesale Database Management System].[dbo].[Invoice]
+	WHERE YEAR(InvoiceDate) = @Year AND MONTH(InvoiceDate) = @Month
+	RETURN @TotalSalesTax
+END;
+go
+--
+CREATE FUNCTION TotalMonthlyDiscount (@Year INT, @Month INT)
+		RETURNS DEC (20, 2)
+AS
+BEGIN
+	DECLARE @TotalDiscount DEC (20, 2)
+	SELECT @TotalDiscount = ISNULL(SUM(Discount), 0)
+	FROM [Wholesale Database Management System].[dbo].[Invoice]
+	WHERE YEAR(InvoiceDate) = @Year AND MONTH(InvoiceDate) = @Month
+	RETURN @TotalDiscount
+END;
+go
+
+-- Check Functions
+SELECT dbo.TotalMonthlyDiscount (2020, 06) AS TotalDiscount;
+go
+SELECT dbo.MonthlySalesTax (2020, 05) AS TotalSalesTax;
+go
+SELECT dbo.ParticularMonthYearSales (2020, 01) AS TotalSales;
+go
+-------------------------------------------------------------------------------------------------------------------------------
