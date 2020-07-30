@@ -1,4 +1,4 @@
-USE Jacob_Nikhil_TEST
+USE AdventureWorks2008R2
 DROP DATABASE [Wholesale Database Management System];
 go
 -------------------------------------------------------------------------------------------------------
@@ -409,7 +409,7 @@ WHERE @Itemno=[ItemNo]
 END;
 GO
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- POPULATING DATABASE 
+-- POPULATING DATABASE WITH TEST DATA
 insert into Address ([Address ID], [AddressLine 1], [AddressLine 2], [City], [State], [Country], [ZipCode]) values (1010, '53', 'Vermont', 'Toledo', 'Ohio', 'United States', '43605');
 insert into Address ([Address ID], [AddressLine 1], [AddressLine 2], [City], [State], [Country], [ZipCode]) values (1011, '02', 'Esch', 'Bethesda', 'Maryland', 'United States', '20816');
 insert into Address ([Address ID], [AddressLine 1], [AddressLine 2], [City], [State], [Country], [ZipCode]) values (1012, '57', 'Walton', 'Philadelphia', 'Pennsylvania', 'United States', '19196');
@@ -1067,3 +1067,7 @@ GO
 SELECT * FROM OrderDetails
 GO
 --
+--Clean-Up
+USE AdventureWorks2008R2
+DROP DATABASE [Wholesale Database Management System];
+go
