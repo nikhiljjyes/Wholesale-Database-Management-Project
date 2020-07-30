@@ -1064,6 +1064,6 @@ SELECT * FROM OrderDetails
 GO
 --
 --Clean-Up
-USE AdventureWorks2008R2
+USE Jacob_Nikhil_TEST
 DROP DATABASE [Wholesale Database Management System];
 go
