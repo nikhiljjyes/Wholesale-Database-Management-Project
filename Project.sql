@@ -310,8 +310,105 @@ CREATE INDEX [PK_OI, FK_OI_1] ON  [OrderItem] ([OrderID]);
 
 CREATE INDEX [PK_OI, FK_OI_2] ON  [OrderItem] ([ItemNo]);
 GO
+-- Table Level Constraint using a function
+CREATE FUNCTION CheckFnctn()  
+RETURNS int  
+AS   
+BEGIN  
+   DECLARE @retval int  
+   SELECT @retval = COUNT(*) FROM [Category]  
+   RETURN @retval  
+END;  
+GO  
+ALTER TABLE [Category]  
+ADD CONSTRAINT chkRowCount CHECK (dbo.CheckFnctn() >= 1 );  
+GO 
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--Computed Columns based on FUNCTIONS
+CREATE FUNCTION ParticularMonthYearSales (@Year INT, @Month INT)
+	   RETURNS DEC (20, 2)
+AS
+BEGIN
+	DECLARE @TotalSale DEC (20, 2)
+	SELECT @TotalSale = ISNULL(SUM(TransactionAmount), 0)
+	FROM [Wholesale Database Management System].[dbo].[Transaction]
+	WHERE YEAR(TransactionDate) = @Year AND MONTH(TransactionDate) = @Month
+	RETURN @TotalSale
+END;
+go
+--
+CREATE FUNCTION MonthlySalesTax (@Year INT, @Month INT)
+		RETURNS DEC (20, 2)
+AS
+BEGIN
+	DECLARE @TotalSalesTax DEC (20, 2)
+	SELECT @TotalSalesTax = ISNULL(SUM(SalesTax), 0)
+	FROM [Wholesale Database Management System].[dbo].[Invoice]
+	WHERE YEAR(InvoiceDate) = @Year AND MONTH(InvoiceDate) = @Month
+	RETURN @TotalSalesTax
+END;
+go
+--
+CREATE FUNCTION TotalMonthlyDiscount (@Year INT, @Month INT)
+		RETURNS DEC (20, 2)
+AS
+BEGIN
+	DECLARE @TotalDiscount DEC (20, 2)
+	SELECT @TotalDiscount = ISNULL(SUM(Discount), 0)
+	FROM [Wholesale Database Management System].[dbo].[Invoice]
+	WHERE YEAR(InvoiceDate) = @Year AND MONTH(InvoiceDate) = @Month
+	RETURN @TotalDiscount
+END;
+go
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------
+CREATE TRIGGER [dbo].transact
+   ON [dbo].[Transaction]
+   AFTER UPDATE
+AS BEGIN
+    SET NOCOUNT ON; 
 
+ IF (SELECT D.TransactionStatus  FROM [Transaction] O inner join inserted d on o.TransactionID = d.[TransactionID]                
+    WHERE D.[TransactionID] = d.[TransactionID]  )  = 'Approved'
 
+UPDATE [Order]
+    SET [OrderStatus] = 'Completed' FROM [Order] S 
+    INNER JOIN CustomerOrder I ON S.[OrderID] = I.[OrderID] 
+    INNER JOIN inserted D ON I.TransactionID = D.[TransactionID]    ;
+ELSE
+UPDATE [Order]
+    SET [OrderStatus] = 'Pending' FROM [Order] S 
+    INNER JOIN CustomerOrder I ON S.[OrderID] = I.[OrderID] 
+    INNER JOIN inserted D ON I.TransactionID = D.[TransactionID]   ;
+END
+go
+--
+CREATE Trigger ComputeSalesTax
+ON [dbo].[Invoice]
+AFTER INSERT, UPDATE
+AS 
+BEGIN
+ DECLARE @InvoiceID INT
+ SET @InvoiceID = ISNULL((SELECT InvoiceID FROM inserted), (SELECT InvoiceID FROM deleted))
+ UPDATE [dbo].[Invoice]
+ SET SalesTax = 0.15*TotalAmount
+ WHERE @InvoiceID = InvoiceID
+ END;
+ go
+ -- 
+CREATE TRIGGER ComputeInventorycosts
+ON [dbo].[Inventory]
+AFTER INSERT, UPDATE
+AS 
+BEGIN
+DECLARE @Itemno INT
+SET @Itemno= ISNULL((SELECT [ItemNo] FROM inserted), (SELECT [ItemNo] FROM deleted))
+UPDATE [Inventory]
+SET [Inventory Costs]= 0.01*QuantityInStock
+WHERE @Itemno=[ItemNo]
+END;
+GO
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- POPULATING DATABASE 
 insert into Address ([Address ID], [AddressLine 1], [AddressLine 2], [City], [State], [Country], [ZipCode]) values (1010, '53', 'Vermont', 'Toledo', 'Ohio', 'United States', '43605');
 insert into Address ([Address ID], [AddressLine 1], [AddressLine 2], [City], [State], [Country], [ZipCode]) values (1011, '02', 'Esch', 'Bethesda', 'Maryland', 'United States', '20816');
@@ -863,16 +960,10 @@ FROM  [dbo].[CustomerOrder] co JOIN [dbo].[Order] o ON co.OrderID = o.OrderID
 							   JOIN [dbo].[Customer] c ON c.CustomerID = co.CustomerID
 GO
 --
-SELECT * FROM OrderDetails
-GO
---
 CREATE VIEW InvetoryDetails
 AS
 SELECT i.ItemNo, ItemName, QuantityInStock, [Inventory Costs]
 FROM [dbo].[Item] i JOIN [dbo].[Inventory] iv ON i.ItemNo = iv.ItemNo;
-GO
---
-SELECT * FROM InvetoryDetails;
 GO
 --
 CREATE VIEW OrderDeliveryStatus
@@ -883,17 +974,11 @@ FROM [dbo].[CustomerOrder] co JOIN [dbo].[Order] o ON co.OrderID = o.OrderID
 							  JOIN [dbo].[Customer] c ON c.CustomerID = co.CustomerID;
 GO
 --
-SELECT * FROM OrderDeliveryStatus;
-GO
---
 CREATE VIEW DistributorItems
 AS 
 SELECT id.DistributorID, DistributorName, ItemName
 FROM Distributor d JOIN ItemDistributor id ON d.DistributorID = id.DistributorID
 				   JOIN Item i ON i.ItemNo = id.ItemNo;
-GO
---
-SELECT * FROM DistributorItems;
 GO
 --
 CREATE VIEW CustomerRefunds
@@ -906,26 +991,10 @@ FROM CustomerReturnsOrder cro JOIN Customer c ON cro.CustomerID = c.CustomerID
 							  JOIN Refund re ON r.RefundOrderID = re.RefundOrderID;
 GO
 --
-SELECT * FROM CustomerRefunds;
-GO
---
 CREATE VIEW SalesItems
 AS
 SELECT OrderID, io.ItemNo, ItemName, Quantity AS OrderQty
 FROM OrderItem io JOIN Item i ON io.ItemNo = i.ItemNo;
-GO
---
-SELECT * FROM SalesItems;
-GO
---
-CREATE VIEW EmployeeCouponAccess
-WITH ENCRYPTION
-AS
-SELECT *
-FROM Coupon;
-GO
---
-SELECT * FROM EmployeeCouponAccess;
 GO
 --
 CREATE VIEW CompleteStatus
@@ -937,59 +1006,9 @@ FROM  [dbo].[CustomerOrder] co JOIN [dbo].[Order] o ON co.OrderID = o.OrderID
 							   JOIN [dbo].[Invoice] i ON co.InvoiceID = i.InvoiceID 
 							   JOIN [dbo].[Customer] c ON c.CustomerID = co.CustomerID
 							   JOIN [dbo].[Shipping] s ON co.ShippingLabelNo = s.ShippingLabelNo;
-go
---
-SELECT * FROM CompleteStatus;
-GO
---------------------------------------------------------------
-CREATE TRIGGER [dbo].transact
-   ON [dbo].[Transaction]
-   AFTER UPDATE
-AS BEGIN
-    SET NOCOUNT ON; 
-
- IF (SELECT D.TransactionStatus  FROM [Transaction] O inner join inserted d on o.TransactionID = d.[TransactionID]                
-    WHERE D.[TransactionID] = d.[TransactionID]  )  = 'Approved'
-
-UPDATE [Order]
-    SET [OrderStatus] = 'Completed' FROM [Order] S 
-    INNER JOIN CustomerOrder I ON S.[OrderID] = I.[OrderID] 
-    INNER JOIN inserted D ON I.TransactionID = D.[TransactionID]    ;
-ELSE
-UPDATE [Order]
-    SET [OrderStatus] = 'Pending' FROM [Order] S 
-    INNER JOIN CustomerOrder I ON S.[OrderID] = I.[OrderID] 
-    INNER JOIN inserted D ON I.TransactionID = D.[TransactionID]   ;
-END
-go
---
-CREATE Trigger ComputeSalesTax
-ON [dbo].[Invoice]
-AFTER INSERT, UPDATE
-AS 
-BEGIN
- DECLARE @InvoiceID INT
- SET @InvoiceID = ISNULL((SELECT InvoiceID FROM inserted), (SELECT InvoiceID FROM deleted))
- UPDATE [dbo].[Invoice]
- SET SalesTax = 0.15*TotalAmount
- WHERE @InvoiceID = InvoiceID
- END;
- go
- -- 
-CREATE TRIGGER ComputeInventorycosts
-ON [dbo].[Inventory]
-AFTER INSERT, UPDATE
-AS 
-BEGIN
-DECLARE @Itemno INT
-SET @Itemno= ISNULL((SELECT [ItemNo] FROM inserted), (SELECT [ItemNo] FROM deleted))
-UPDATE [Inventory]
-SET [Inventory Costs]= 0.01*QuantityInStock
-WHERE @Itemno=[ItemNo]
-END;
 GO
 -----------------------------------------------------------------------------------------------------------------------------------------------------
--- CHECK TRIGGER
+-- TEST TRIGGER
 UPdate [Transaction]
 set [TransactionStatus] = 'Cancelled' where [TransactionID] = 101024;
 
@@ -1015,44 +1034,8 @@ SET [QuantityInStock] = 4000 WHERE [ItemNo]= 8081;
 SELECT * FROM [Inventory];
 GO
 ----------------------------------------------------------------------------------------------------------------------------------------------------------
---FUNCTIONS
-CREATE FUNCTION ParticularMonthYearSales (@Year INT, @Month INT)
-	   RETURNS DEC (20, 2)
-AS
-BEGIN
-	DECLARE @TotalSale DEC (20, 2)
-	SELECT @TotalSale = ISNULL(SUM(TransactionAmount), 0)
-	FROM [Wholesale Database Management System].[dbo].[Transaction]
-	WHERE YEAR(TransactionDate) = @Year AND MONTH(TransactionDate) = @Month
-	RETURN @TotalSale
-END;
-go
---
-CREATE FUNCTION MonthlySalesTax (@Year INT, @Month INT)
-		RETURNS DEC (20, 2)
-AS
-BEGIN
-	DECLARE @TotalSalesTax DEC (20, 2)
-	SELECT @TotalSalesTax = ISNULL(SUM(SalesTax), 0)
-	FROM [Wholesale Database Management System].[dbo].[Invoice]
-	WHERE YEAR(InvoiceDate) = @Year AND MONTH(InvoiceDate) = @Month
-	RETURN @TotalSalesTax
-END;
-go
---
-CREATE FUNCTION TotalMonthlyDiscount (@Year INT, @Month INT)
-		RETURNS DEC (20, 2)
-AS
-BEGIN
-	DECLARE @TotalDiscount DEC (20, 2)
-	SELECT @TotalDiscount = ISNULL(SUM(Discount), 0)
-	FROM [Wholesale Database Management System].[dbo].[Invoice]
-	WHERE YEAR(InvoiceDate) = @Year AND MONTH(InvoiceDate) = @Month
-	RETURN @TotalDiscount
-END;
-go
 
--- Check Functions
+-- Test Computed Columns based on Functions
 SELECT dbo.TotalMonthlyDiscount (2020, 06) AS TotalDiscount;
 go
 SELECT dbo.MonthlySalesTax (2020, 05) AS TotalSalesTax;
@@ -1060,3 +1043,27 @@ go
 SELECT dbo.ParticularMonthYearSales (2020, 01) AS TotalSales;
 go
 -------------------------------------------------------------------------------------------------------------------------------
+-- Test Views 
+SELECT * FROM CustomerInfo;
+--
+SELECT * FROM CompleteStatus;
+GO
+--
+SELECT * FROM SalesItems;
+GO
+--
+SELECT * FROM CustomerRefunds;
+GO
+--
+SELECT * FROM DistributorItems;
+GO
+--
+SELECT * FROM OrderDeliveryStatus;
+GO
+--
+SELECT * FROM InvetoryDetails;
+GO
+--
+SELECT * FROM OrderDetails
+GO
+--
